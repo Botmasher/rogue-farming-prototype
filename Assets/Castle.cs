@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class Castle : MonoBehaviour {
 
-	//int levels = 3; 	// NOTE instead read from length of level hazards
-
 	// sequence of hazards and rewards to be met each level
-	List<List <string>> levelObstacles = new List<List<string>> ();
+	public List<List <string>> levelObstacles = new List<List<string>> ();
 
 	// TODO use the int as stats for strength and toughness, or for chests as theft
 	// - rogue will do one attempt, take a hit to a stat, then do another attempt
@@ -15,38 +13,21 @@ public class Castle : MonoBehaviour {
 	// - attempts hit from weapon stat or from thievery stat
 	// - successful treasures add to gold stash to be brought back
 
-	// - what stats deal with hazards? add a new one, say Agility? Or is this just more health stuff for now??
-
-	Dictionary<string, int> obstacles = new Dictionary<string, int> ()
-	{
-		// TODO also calculate commonness? like some should show up more/less on diff levels
-		// enemies
-		{"tiny", 1},
-		{"minion", 2},
-		{"brute", 3},
-		{"guard", 5},
-		{"warrior", 8},
-		// treasures
-		{"pile", 1},
-		{"stash", 3},
-		{"chest", 5},
-		{"warchest", 10},
-		{"vault", 25},
-		// hazards
-		// these are smaller but make up for pain in bulk
-		{"small pit", 1},
-		{"spike", 3},
-		{"big bottomless pit", 5},
-		{"lava", 8},
-		{"ice", 10},
-		{"poison trap", 14},
-		{"death trap", 25}, 	// rare but excruciating
+	// obstacles dictionaries for populating the castle sequence
+	// TODO also calculate commonness - some show up more/less on low/high levels
+	public Dictionary<string, int> enemies = new Dictionary<string, int> () {
+		// grunts
+		{ "tiny", 1 },
+		{ "minion", 2 },
+		{ "brute", 3 },
+		{ "guard", 5 },
+		{ "warrior", 8 },
 		// minibosses
-		{"bull miniboss", 8},
-		{"snake miniboss", 10},
-		{"knight miniboss", 14},
-		{"shapeshifter miniboss", 17},
-		{"legendary miniboss", 20},
+		{ "bull miniboss", 8 },
+		{ "snake miniboss", 10 },
+		{ "knight miniboss", 14 },
+		{ "shapeshifter miniboss", 17 },
+		{ "legendary miniboss", 20 },
 		// bosses
 		{"boss Snailzasaur", 25},
 		{"boss Feaglecon", 35},
@@ -58,9 +39,23 @@ public class Castle : MonoBehaviour {
 		{"Sprabbit the Swift", 150}
 	};
 
-	// TODO: decide if obstacle overcome, if not rogue dies
-	//  - have rogue object make the attempt
-	// 	- 
+	public Dictionary<string, int> treasures = new Dictionary<string, int> () {
+		{ "pile", 1 },
+		{ "stash", 3 },
+		{ "chest", 5 },
+		{ "warchest", 10 },
+		{ "vault", 25 }
+	};
+
+	public Dictionary<string, int> hazards = new Dictionary<string, int> () {
+		{ "small pit", 1 },			// small but maybe deliver pain in bulk
+		{ "spike", 3 },
+		{ "big bottomless pit", 5 },
+		{ "lava", 8 },
+		{ "ice", 10 },
+		{ "poison trap", 14 },
+		{ "death trap", 25 }	 	// rare but excruciating
+	};
 
 	// iterate through string list swapping values randomly
 	// modified from: https://stackoverflow.com/questions/273313/randomize-a-listt
@@ -77,12 +72,12 @@ public class Castle : MonoBehaviour {
 	// add string to list a bounded random number of times
 	void addRandomTimes (List<string> l, string s, int minTimes, int maxTimes) {
 		int times = Random.Range(minTimes, maxTimes + 1);
-		Debug.Log (times);
 		for (int i=0; i < times; i++) {
 			l.Add (s);
 		}
 	}
 
+	// log the sequence of obstacles
 	void printList (List<string> l) {
 		Debug.Log (l.Count);
 		string o = "[";
