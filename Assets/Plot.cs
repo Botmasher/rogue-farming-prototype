@@ -30,6 +30,10 @@ public class Plot : MonoBehaviour {
 	string currentObstacle;
 	int currentLevel = 0;
 
+	// growth status
+	bool isEmpty = true; 	// availability for planting
+	int growthStage = 0; 	// once reaches 3 (Done) ready to pick
+
 	void Start () {
 		// add all sprites to the list
 		sprites.Add (spriteEmpty);
