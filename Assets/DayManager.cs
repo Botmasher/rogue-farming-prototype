@@ -4,17 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class DayManager : MonoBehaviour {
-	
+
+	// singleton 
+	public static DayManager Day;
+
 	// time tracking
-	int days = 0; 				// number of days passed since game start
-	int hour = 0; 				// number of hours passed this day
-	int framesCounter = 0; 		// keep track of frames to divide into hours and days
+	int days; 				// number of days passed since game start
+	int hour; 				// number of hours passed this day
+	float secondsCounter; 	// keep track of real seconds to divide into game hours and days
 
 	// time constants
 	// TODO pin more to deltaTime instead of tracking only frames
-	int framesPerHour = 200; 	// divide frames counter into hours (3600 frames is 1 min at 60 fps)
-	int hoursPerDay = 10; 		// divide day into 0-n (n exclusive) hours range
-	int morningHour = 1; 		// strikes on the first hour (one hour after day reset)
+	float secondsPerHour = 4f; 		// how long a game hour lasts in realtime
+	int hoursPerDay = 10; 			// divide day into 0-n (n exclusive) hours range
+	int morningHour = 1; 			// strikes on the first hour (one hour after day reset)
 	int noonHour = 4;
 	int eveningHour = 6;
 	int nightHour = 7;
@@ -28,9 +31,24 @@ public class DayManager : MonoBehaviour {
 		{ "night", new List<Action> () }
 	};
 
+	void Awake () {
+		// static singleton for global public access
+		if (Day != null) {
+			GameObject.Destroy (Day);
+		} else {
+			Day = this;
+		}
+		DontDestroyOnLoad (this);
+	}
+
 	void Start () {
+		// start with full counters to trigger new day actions on first day
+		this.secondsCounter = this.secondsPerHour;
+		this.days = -1;
+		this.hour = hoursPerDay;
+
 		// test subscribing for day events
-		this.At("day", () => Debug.Log("it's a brand new day!"));
+		this.At("day", () => Debug.Log(string.Format("Day {0} - brand new day!", this.days + 1)));
 		this.At("morning", () => Debug.Log("it's morning!"));
 		this.At("noon", () => Debug.Log("it's noon!"));
 		this.At("evening", () => Debug.Log("it's evening!"));
@@ -38,11 +56,11 @@ public class DayManager : MonoBehaviour {
 	}
 
 	void Update() {
-		this.framesCounter++;
+		this.secondsCounter += Time.deltaTime;
 		// an hour has passed
-		if (this.framesCounter >= this.framesPerHour) {
+		if (this.secondsCounter >= this.secondsPerHour) {
 			this.hour++;
-			this.framesCounter = 0;
+			this.secondsCounter = 0f;
 			// a full day has passed
 			if (this.hour >= this.hoursPerDay) {
 				this.days++;

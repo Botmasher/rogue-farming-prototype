@@ -45,9 +45,11 @@ public class Plot : MonoBehaviour {
 		GetComponent<SpriteRenderer> ().sprite = sprites[0];
 
 		// NOTE demo setting rogue and castle from the getgo 
-		this.SetCaslte (castle);
-		this.SetRogue (rogue);
+		//this.SetCaslte (castle);
+		//this.SetRogue (rogue);
 		castle.resetCastle ();
+
+		DayManager.Day.At("noon", () => Debug.Log("Logging a noontime message from a Plot outside DayManager"));
 	}
 
 	void Update () {
