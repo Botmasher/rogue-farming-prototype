@@ -42,12 +42,12 @@ public class Plot : MonoBehaviour {
 		sprites.Add (spriteDone);
 		sprites.Add (spriteCracked);
 		// set current sprite
-		GetComponent<SpriteRenderer> ().sprite = sprites[0];
+		//GetComponent<SpriteRenderer> ().sprite = sprites[0];
 
 		// NOTE demo setting rogue and castle from the getgo 
 		//this.SetCaslte (castle);
 		//this.SetRogue (rogue);
-		castle.resetCastle ();
+		if (castle) castle.resetCastle ();
 
 		DayManager.Day.At("noon", () => Debug.Log("Logging a noontime message from a Plot outside DayManager"));
 	}
@@ -55,7 +55,7 @@ public class Plot : MonoBehaviour {
 	void Update () {
 		
 		// check if rogue is free for tasks
-		if (!rogue.IsBusy () && cooldownTimer <= 0) {
+		if (rogue && !rogue.IsBusy () && cooldownTimer <= 0) {
 			// keep iterating through levels of obstacles until castle sequence done
 			if (currentLevel < castle.levelObstacles.Count) {
 				if (obstacleIndex >= castle.levelObstacles [currentLevel].Count) {

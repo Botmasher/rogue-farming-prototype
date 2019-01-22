@@ -14,11 +14,11 @@ public class GameManager : MonoBehaviour {
 
 	void Start () {
 		// demo single plot - eventually have grim place selected rogues in plots
-		GameObject newPlot = GameObject.Instantiate (plot) as GameObject;
-		newPlot.GetComponent<Plot> ().rogue = GameObject.Instantiate (rogue) as Rogue;
-		newPlot.GetComponent<Plot> ().castle = GameObject.Instantiate (castle) as Castle;
+//		GameObject newPlot = GameObject.Instantiate (plot) as GameObject;
+//		newPlot.GetComponent<Plot> ().rogue = GameObject.Instantiate (rogue) as Rogue;
+//		newPlot.GetComponent<Plot> ().castle = GameObject.Instantiate (castle) as Castle;
 
 		// full startup
-		Instantiate (farm, Vector3.zero, Quaternion.identity); 	// plots matrix
+//		Instantiate (farm, Vector3.zero, Quaternion.identity); 	// plots matrix
 	}
 }

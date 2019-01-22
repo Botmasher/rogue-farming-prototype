@@ -24,6 +24,7 @@ public class DayManager : MonoBehaviour {
 
 	// listener events to subscribe/announce and callbacks to run
 	Dictionary<string, List<Action>> events = new Dictionary<string, List<Action>> () {
+		{ "hour", new List<Action> () },
 		{ "day", new List<Action> () },
 		{ "morning", new List<Action> () },
 		{ "noon", new List<Action> () },
@@ -48,6 +49,7 @@ public class DayManager : MonoBehaviour {
 		this.hour = hoursPerDay;
 
 		// test subscribing for day events
+		this.At("hour", () => Debug.Log("Another hour has passed"));
 		this.At("day", () => Debug.Log(string.Format("Day {0} - brand new day!", this.days + 1)));
 		this.At("morning", () => Debug.Log("it's morning!"));
 		this.At("noon", () => Debug.Log("it's noon!"));
@@ -61,6 +63,7 @@ public class DayManager : MonoBehaviour {
 		if (this.secondsCounter >= this.secondsPerHour) {
 			this.hour++;
 			this.secondsCounter = 0f;
+			this.Announce ("hour");
 			// a full day has passed
 			if (this.hour >= this.hoursPerDay) {
 				this.days++;
@@ -76,9 +79,10 @@ public class DayManager : MonoBehaviour {
 			} else if (this.hour == nightHour) {
 				this.Announce("night");
 			// no events
-			} else {
-				Debug.Log("Another regular hour passed. Nothing to announce.");
 			}
+//			else {
+//				// do nothing
+//			}
 		}
 	}
 

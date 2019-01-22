@@ -55,5 +55,5 @@ MonoBehaviour:
   startingXY: {x: 0, y: 0}
   numColumns: 0
   numRows: 0
-  columnSeparationX: 0
-  rowSeparationY: 0
+  columnSeparation: 1
+  rowSeparation: 1
