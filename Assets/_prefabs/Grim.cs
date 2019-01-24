@@ -20,9 +20,12 @@ public class Grim : MonoBehaviour {
 	private bool isSwiping = false;
 	private float swipeTimer; 		// count down for swipe impact
 
+	// raycasting
+	RaycastHit hit;
+
 	void Start () {
 		// set initial sprite
-		renderer = this.GetComponent <SpriteRenderer> ();
+		renderer = this.GetComponentInChildren <SpriteRenderer> ();
 		renderer.sprite = spriteDefault;
 	}
 
@@ -56,11 +59,20 @@ public class Grim : MonoBehaviour {
 		}
 
 		/* character actions */
-		// swipe but avoid stacking swipes
+		// swipe scythe but avoid stacking swipes
 		if (!isSwiping && Input.GetButtonDown ("Swipe")) {
 			isSwiping = true;
 			swipeTimer = 0.1f;
 			renderer.sprite = spriteSwipe;
+
+			// raycast to check for farm plot
+			if (Physics.Raycast (this.transform.position, this.transform.TransformDirection (Vector3.forward), out hit)) {
+				if (hit.collider.gameObject.tag == "FarmPlot") {
+					this.ScytheFarm (hit.collider.gameObject);
+				}	
+			}
+
+
 		} else if (isSwiping && swipeTimer > 0f) {
 			swipeTimer -= Time.deltaTime;
 			renderer.flipX = false;
@@ -74,5 +86,11 @@ public class Grim : MonoBehaviour {
 		// TODO inventory toggle
 		// 	- place or use items
 		// 	- if inventory available manage it with movement
+	}
+
+	// take farm action on raycast hit
+	void ScytheFarm(GameObject farmPlot) {
+		Debug.Log (string.Format("Successfully swiped a farm plot named {0}", farmPlot.name));
+
 	}
 }

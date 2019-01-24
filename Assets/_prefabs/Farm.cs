@@ -28,7 +28,9 @@ public class Farm : MonoBehaviour {
 		for (int i = 0; i < numRows; i++) {
 			plotsMatrix.Add (new List<GameObject> ());
 			for (int j = 0; j < numColumns; j++) {
-				plotsMatrix [i].Add (GameObject.Instantiate (plot, new Vector2(currentX, currentY), Quaternion.Euler(0f, 0f, 0f)));
+				GameObject farmPlot = GameObject.Instantiate (plot, new Vector2(currentX, currentY), Quaternion.Euler(0f, 0f, 0f));
+				farmPlot.name = string.Format ("{0}.{1}.{2}", farmPlot.name, i, j);
+				plotsMatrix [i].Add (farmPlot);
 				currentX += columnSeparation;
 			}
 			currentX = startingXY.x;
