@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4820836352450092}
   - component: {fileID: 114837665837699528}
   m_Layer: 0
-  m_Name: Farm
+  m_Name: FarmsManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   plot: {fileID: 0}
-  startingXY: {x: 0, y: 0}
+  startingPosition: {x: 0, y: 0, z: 0}
   numColumns: 0
   numRows: 0
   columnSeparation: 1

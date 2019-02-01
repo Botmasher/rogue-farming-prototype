@@ -20,6 +20,9 @@ public class Grim : MonoBehaviour {
 	private bool isSwiping = false;
 	private float swipeTimer; 		// count down for swipe impact
 
+	// environment interaction
+	private GameObject focusedPlot; // farm plot for planting, gathering or info
+
 	// raycasting
 	RaycastHit hit;
 
@@ -51,8 +54,9 @@ public class Grim : MonoBehaviour {
 			isMoving = true;
 		}
 		if (isMoving && !isSwiping) {
-			this.transform.Translate (new Vector2(
+			this.transform.Translate (new Vector3(
 				axes.x * speed * Time.deltaTime,
+				0f,
 				axes.y * speed * Time.deltaTime
 			));
 			isMoving = false;
@@ -66,10 +70,13 @@ public class Grim : MonoBehaviour {
 			renderer.sprite = spriteSwipe;
 
 			// raycast to check for farm plot
-			if (Physics.Raycast (this.transform.position, this.transform.TransformDirection (Vector3.forward), out hit)) {
+			if (Physics.Raycast (this.transform.position, this.transform.TransformDirection (Vector3.down), out hit)) {
 				if (hit.collider.gameObject.tag == "FarmPlot") {
-					this.ScytheFarm (hit.collider.gameObject);
-				}	
+					// remember the focused plot
+					this.SetFarm (hit.collider.gameObject);
+					// decide behavior based on plot status
+					this.HandlePlotSwipe ();
+				}
 			}
 
 
@@ -88,9 +95,17 @@ public class Grim : MonoBehaviour {
 		// 	- if inventory available manage it with movement
 	}
 
-	// take farm action on raycast hit
-	void ScytheFarm(GameObject farmPlot) {
-		Debug.Log (string.Format("Successfully swiped a farm plot named {0}", farmPlot.name));
+	// assign currently focused farm plot
+	void SetFarm(GameObject farmPlot) {
+		this.focusedPlot = farmPlot;
+	}
 
+	// take farm action on swipe
+	void HandlePlotSwipe() {
+		Debug.Log (string.Format("Successfully swiped a farm plot named {0}", this.focusedPlot.name));
+
+		// TODO branches for different growth or emptiness of plot
+		Plot plotBehavior = this.focusedPlot.GetComponent<Plot> ();
+		// if/case ...
 	}
 }

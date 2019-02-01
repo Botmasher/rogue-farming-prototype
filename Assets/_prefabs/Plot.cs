@@ -21,18 +21,28 @@ public class Plot : MonoBehaviour {
 	// gather assigned sprite images into indexed grow sequence
 	List<Sprite> sprites = new List<Sprite>();
 
-	// leeway counter for demoing rogue actions against castle obstacles
+	// leeway secs for demoing rogue actions against castle obstacles
 	// used as safety valve to avoid passing more than one obstacle at a time to rogue 
-	int cooldownTimer = 0;
+	float cooldownTimer = 0f;
 
 	// async iterator through castle obstacle sequences
 	int obstacleIndex = 0;
 	string currentObstacle;
 	int currentLevel = 0;
 
-	// growth status
-	bool isEmpty = true; 	// availability for planting
-	int growthStage = 0; 	// once reaches 3 (Done) ready to pick
+	// plant and harvest status
+	bool isEmpty = true; 		// availability for planting
+	public bool IsEmpty {
+		get {
+			return this.isEmpty;
+		}
+	}
+	int growthStage = 0; 		// once reaches 3 (Done) ready to pick
+	public int GrowthStage {
+		get {
+			return this.growthStage;
+		}
+	}
 
 	void Start () {
 		// add all sprites to the list
@@ -55,7 +65,7 @@ public class Plot : MonoBehaviour {
 	void Update () {
 		
 		// check if rogue is free for tasks
-		if (rogue && !rogue.IsBusy () && cooldownTimer <= 0) {
+		if (rogue && !rogue.IsBusy () && cooldownTimer <= 0f) {
 			// keep iterating through levels of obstacles until castle sequence done
 			if (currentLevel < castle.levelObstacles.Count) {
 				if (obstacleIndex >= castle.levelObstacles [currentLevel].Count) {
@@ -86,11 +96,11 @@ public class Plot : MonoBehaviour {
 				// unknown obstacle
 				Debug.Log(string.Format("Castle does not seem to contain any obstacle named {0}", currentObstacle));
 			}
-			cooldownTimer = 10;
+			cooldownTimer = 0.1f;
 		}
 
-		if (cooldownTimer > 0) {
-			cooldownTimer--;
+		if (cooldownTimer > 0f) {
+			cooldownTimer -= Time.deltaTime;
 		}
 
 	}
