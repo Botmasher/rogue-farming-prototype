@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class Grim : MonoBehaviour {
 
+	// components
+	private SpriteRenderer renderer; 	// store reference to render component
+	private Inventory inventory; 		// inventory management
+
 	// sprites to render
 	public Sprite spriteDefault;
 	public Sprite spriteSwipe;
 	public Sprite spriteSide;
-	private SpriteRenderer renderer; // store reference to render component
 
 	// input calc
 	public float speed = 1f; 		// factor for movement over time
