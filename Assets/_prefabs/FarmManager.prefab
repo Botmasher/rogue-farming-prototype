@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4820836352450092}
   - component: {fileID: 114837665837699528}
   m_Layer: 0
-  m_Name: FarmsManager
+  m_Name: FarmManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour {
 
+	// TODO: successfully store, put together and retrieve items
+	// 	- for demo any "item" is one of rogue components: rogue wight (seriously? idk sounds fun), armor, weapon
+	//  - simplify: a rogue has a weapon slot and an armor slot
+	// 	- eventually consider things like non-equipment items: potions...
+	// 	- eventually consider things like abilities: magic, skills, ...
+
+	// TODO: interface displaying visuals for items
+	// - update when armor, weapon attached to rogue
+	// - rogue can be taken apart / put together for its three components
+	// - rogue enters or leaves inventory with or without weapon and armor
+
 	// inventory and items data
 	List<GameObject> items = new List<GameObject> ();
 	int limit = 12;
@@ -15,12 +26,8 @@ public class Inventory : MonoBehaviour {
 	int gridWidth; 				// number of columns needed for rows
 
 	void Start () {
+		// count inventory columns for rough visual balance of ui spacing given current number of rows
 		this.gridWidth = this.limit / this.gridHeight;
-		this.items.Add (this.gameObject);
-		this.items.Add (this.gameObject);
-		Debug.Log (this.items[1]);
-		this.items.RemoveAt (1);
-		Debug.Log (this.items[1]);
 	}
 
 	// NOTE: remove automatically drops the element from the list; keeping it null could facilitate spacing/unspacing option

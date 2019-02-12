@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FarmsManager : MonoBehaviour {
+public class FarmManager : MonoBehaviour {
 
 	// prefab to instantiate and arrange in plots matrix
 	public GameObject plot;

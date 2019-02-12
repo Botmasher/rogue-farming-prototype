@@ -14,8 +14,13 @@ public class Rogue : MonoBehaviour {
 	int health = 50;
 	public bool isAlive = true;
 
-	// TODO generate unique name for each rogue
-	string name = "Ruffus the Tuffust";
+	// actual weaponry and armor stats
+	public GameObject weaponEquipment;
+	public GameObject armorEquipment;
+
+	// TODO: generate unique name for each rogue
+	// 	- or let player name the rogue
+	string name = "Asdf";
 
 	// determine skills gained in castle for boosts
 	int enemyPoints = 0;
