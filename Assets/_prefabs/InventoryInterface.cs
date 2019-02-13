@@ -19,7 +19,7 @@ public class InventoryInterface : MonoBehaviour {
 	private List<Image> itemList = new List<Image> ();
 
 	// inventory images positioning
-	public Vector2 slotStartPosition;
+	public Vector3 slotStartPosition;
 	public float slotSpacingHorizontal;
 
 	// animation control
@@ -37,20 +37,24 @@ public class InventoryInterface : MonoBehaviour {
 		for (int i = 0; i < slotCount; i++) {
 			// calculate the next horizontal value for the slot to be created
 			slotPositionX = i > 0
-				? slotList[i - 1].rectTransform.anchoredPosition.x
+				? slotList[i - 1].rectTransform.anchoredPosition3D.x
 				: slotStartPosition.x
 			;
 			
 			// create and store slot
 			slotList.Add (GameObject.Instantiate (slot) as Image);
-			itemList.Add (GameObject.Instantiate (slotItem));
+			itemList.Add (GameObject.Instantiate (slotItem) as Image);
 
 			// parent to keep slot and item ui under inventory in canvas
-			slotList [i].rectTransform.SetParent (background);
-			itemList [i].rectTransform.SetParent (background);
+			slotList [i].rectTransform.SetParent (background.transform);
+			itemList [i].rectTransform.SetParent (slotList [i].transform);
 
 			// position slot along the row
-			slotList [i].rectTransform.anchoredPosition = new Vector2 (slotPositionX + slotSpacingHorizontal, slotStartPosition.y);
+			slotList [i].rectTransform.anchoredPosition3D = new Vector3 (
+				slotPositionX + slotSpacingHorizontal,
+				slotStartPosition.y,
+				slotStartPosition.z
+			);
 
 			// position a corresponding item holder slightly atop the slot
 			itemList [i].rectTransform.anchoredPosition3D = new Vector3 (
@@ -69,21 +73,21 @@ public class InventoryInterface : MonoBehaviour {
 			isHidden = !isHidden;
 			// set position to onscreen or offscreen
 			backgroundTargetPosition = isHidden
-				? new Vector3 (background.anchoredPosition.x, -200f)
-				: new Vector3 (background.anchoredPosition.x, 0f)
+				? new Vector3 (background.anchoredPosition3D.x, -200f, background.anchoredPosition3D.z)
+				: new Vector3 (background.anchoredPosition3D.x, 0f, background.anchoredPosition3D.z)
 			;
 		}
 
 		// animate visibility
 		// snap to final position if reached small wiggle room around it
 		if (Mathf.Abs(background.position.y - backgroundTargetPosition.y) <= 0.01f) {
-			background.anchoredPosition = backgroundTargetPosition;
+			background.anchoredPosition3D = backgroundTargetPosition;
 		}
 		// translate towards final show/hide position
 		else {
 			// refer to anchor position to include otherwise neglected offsets
-			background.anchoredPosition = Vector3.Lerp (
-				background.anchoredPosition,
+			background.anchoredPosition3D = Vector3.Lerp (
+				background.anchoredPosition3D,
 				backgroundTargetPosition,
 				Time.deltaTime * hidingSpeed
 			);

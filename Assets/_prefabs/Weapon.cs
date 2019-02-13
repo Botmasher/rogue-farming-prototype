@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RogueWeapon : MonoBehaviour {
+public class Weapon : MonoBehaviour {
 
 	// TODO: give unique names to weapons
 	public string name = "Test Weapon";

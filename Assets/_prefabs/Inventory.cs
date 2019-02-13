@@ -22,7 +22,6 @@ public class Inventory : MonoBehaviour {
 
 	// ui reference for visualization
 	// NOTE: keep list in sync with visualization list
-	// 	- OR keep 
 	public InventoryInterface inventoryUI;
 
 	// NOTE: remove automatically drops the element from the list; keeping it null could facilitate spacing/unspacing option
@@ -42,6 +41,7 @@ public class Inventory : MonoBehaviour {
 		items.Remove (item);
 	}
 
+	// pass item into inventory
 	void AddItem(GameObject item) {
 		if (items.Count < limit) {
 			this.items.Add (item);
