@@ -9,30 +9,30 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1200551583688500}
+  m_RootGameObject: {fileID: 1122980165914890}
   m_IsPrefabParent: 1
---- !u!1 &1200551583688500
+--- !u!1 &1122980165914890
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4390508816431466}
-  - component: {fileID: 114470021863263748}
+  - component: {fileID: 4820836352450092}
+  - component: {fileID: 114837665837699528}
   m_Layer: 0
-  m_Name: DayManager
+  m_Name: Farm Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4390508816431466
+--- !u!4 &4820836352450092
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1200551583688500}
+  m_GameObject: {fileID: 1122980165914890}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -40,14 +40,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114470021863263748
+--- !u!114 &114837665837699528
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1200551583688500}
+  m_GameObject: {fileID: 1122980165914890}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93991e3b4f6314734bc13949e5174d7c, type: 3}
+  m_Script: {fileID: 11500000, guid: 4ba0f343cf6b24aa498c15e49a56d8a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  plot: {fileID: 0}
+  startingPosition: {x: 0, y: 0, z: 0}
+  numColumns: 0
+  numRows: 0
+  columnSeparation: 1
+  rowSeparation: 1

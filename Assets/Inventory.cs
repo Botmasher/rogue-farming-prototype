@@ -19,16 +19,11 @@ public class Inventory : MonoBehaviour {
 	List<GameObject> items = new List<GameObject> ();
 	int limit = 12;
 	int selected = 0;
-	bool visible = false;
 
-	// visuals
-	public int gridHeight = 2; 	// split listed items into rows
-	int gridWidth; 				// number of columns needed for rows
-
-	void Start () {
-		// count inventory columns for rough visual balance of ui spacing given current number of rows
-		this.gridWidth = this.limit / this.gridHeight;
-	}
+	// ui reference for visualization
+	// NOTE: keep list in sync with visualization list
+	// 	- OR keep 
+	public InventoryInterface inventoryUI;
 
 	// NOTE: remove automatically drops the element from the list; keeping it null could facilitate spacing/unspacing option
 	void UnspaceItems() {
@@ -56,10 +51,6 @@ public class Inventory : MonoBehaviour {
 	// TODO: handle messages in individual item slot objects
 	void SelectedByGrim() {
 		this.selected = 1;
-	}
-
-	void ToggleVisibility() {
-		this.visible = !this.visible;
 	}
 
 	int ClampSlot(int slot) {
