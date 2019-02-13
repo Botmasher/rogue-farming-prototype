@@ -15,7 +15,7 @@ public class Grim : MonoBehaviour {
 
 	// movement based on input
 	public float speed = 1f; 		// factor for movement over time
-	private Vector2 axes; 			// holder for (horizontal, vertical) input ranging from -1 to 1
+	private Vector3 velocity; 		// store calculated physics body velocity
 	private float leeway = 0.05f; 	// small wiggle room around zero before registering axis
 	private Rigidbody rigidbody; 	// reference to grim body for physics
 
@@ -41,40 +41,31 @@ public class Grim : MonoBehaviour {
 		// store body for movement through physics forces
 		rigidbody = GetComponent<Rigidbody> ();
 	}
-
+		
 	void Update () {
-		// TODO state machine to avoid juggling renderer logic and smoothing time
+		// TODO state machine to juggle sprite rendering and adding multiframe animations
 
 		/* Basic movement */
 
 		// walk around on axis input
-		axes = new Vector2 (Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-		// side to side
 		renderer.flipX = false; 	// reset sprite flipping for positive horizontal movement
 		// set body speed on input
-		rigidbody.velocity = new Vector3(axes.x, 0f, axes.y) * speed * Time.deltaTime;
+		velocity = new Vector3(
+			Input.GetAxis("Horizontal") * speed,
+			rigidbody.velocity.y,
+			Input.GetAxis("Vertical") * speed
+		);
 
-//		if (Mathf.Abs (axes.x) > leeway) {
-//			renderer.sprite = spriteSide;
-//			if (axes.x > 0f && !renderer.flipX) {
-//				renderer.flipX = true;
-//			}
-//			isMoving = true;
-//		} else {
-//			renderer.sprite = spriteDefault;
-//		}
-//		// up and down
-//		if (Mathf.Abs (axes.y) > leeway) {
-//			isMoving = true;
-//		}
-//		if (isMoving && !isSwiping) {
-//			this.transform.Translate (new Vector3(
-//				axes.x * speed * Time.deltaTime,
-//				0f,
-//				axes.y * speed * Time.deltaTime
-//			));
-//			isMoving = false;
-//		}
+		// set sprite to base image
+		renderer.sprite = spriteDefault;
+
+		// animate character movement horizontally
+		if (Mathf.Abs (velocity.x) > 0f) {
+			// instead use sideways sprite
+			renderer.sprite = spriteSide;
+			// flip sprite when traveling left
+			renderer.flipX = velocity.x > 0;
+		}
 
 		/* Swiping action */
 
@@ -97,6 +88,9 @@ public class Grim : MonoBehaviour {
 
 	}
 
+	void FixedUpdate () {
+		rigidbody.velocity = velocity;
+	}
 
 	/* Interact with items */
 

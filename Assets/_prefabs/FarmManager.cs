@@ -28,7 +28,7 @@ public class FarmManager : MonoBehaviour {
 		for (int i = 0; i < numRows; i++) {
 			plotsMatrix.Add (new List<GameObject> ());
 			for (int j = 0; j < numColumns; j++) {
-				GameObject farmPlot = GameObject.Instantiate (plot, new Vector3(currentX, 0f, currentZ), plot.transform.rotation);
+				GameObject farmPlot = GameObject.Instantiate (plot, new Vector3(currentX, 0.05f, currentZ), plot.transform.rotation);
 				farmPlot.name = string.Format ("{0}.{1}.{2}", farmPlot.name, i, j);
 				plotsMatrix [i].Add (farmPlot);
 				currentX += columnSeparation;
