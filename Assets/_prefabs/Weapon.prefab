@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4068136763595050}
   - component: {fileID: 212187950808272538}
   - component: {fileID: 114066411227094016}
+  - component: {fileID: 114995943325729998}
   m_Layer: 0
   m_Name: Weapon
   m_TagString: Untagged
@@ -58,6 +59,18 @@ MonoBehaviour:
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+--- !u!114 &114995943325729998
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211650589349830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a269c682a1de4b0392e7ee32e1fa270, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventorySprite: {fileID: 0}
 --- !u!212 &212187950808272538
 SpriteRenderer:
   m_ObjectHideFlags: 1

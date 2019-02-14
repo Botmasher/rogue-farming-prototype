@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour {
 
+	// NOTE: the game splits real (possessed) items from their ui representations
+	// 	- actual items in Inventory
+	// 	- slots and items ui in InventoryInterface (separated out so that each item ui can handle its own logic and sprites)
+	// 	- references to game objects are passed through into ui but intended for grabbing and passing back info about them
+
 	// TODO: successfully store, put together and retrieve items
 	// 	- for demo any "item" is one of rogue components: rogue wight (seriously? idk sounds fun), armor, weapon
 	//  - simplify: a rogue has a weapon slot and an armor slot
@@ -24,10 +29,21 @@ public class Inventory : MonoBehaviour {
 	// NOTE: keep list in sync with visualization list
 	public InventoryInterface inventoryUI;
 
+
+	/* Interact with inventory on input */
+
+	// TODO: player input hits inventory slot (GET FROM InventoryInterface)
+	void SelectSlot(GameObject item) {
+		Debug.Log (item);
+	}
+
+
+	/* Manage list data */
+
 	// NOTE: remove automatically drops the element from the list; keeping it null could facilitate spacing/unspacing option
 	void UnspaceItems() {
 		List<GameObject> unspacedItems = new List<GameObject> ();
-		//items.ForEach (item => if (item));
+		//items.ForEach (item => Debug.Log (item));
 	}
 
 	GameObject DropItemAt(int slot) {
@@ -46,11 +62,7 @@ public class Inventory : MonoBehaviour {
 		if (items.Count < limit) {
 			this.items.Add (item);
 		}
-	}
-
-	// TODO: handle messages in individual item slot objects
-	void SelectedByGrim() {
-		this.selected = 1;
+		// otherwise just have grim drop it
 	}
 
 	int ClampSlot(int slot) {
@@ -70,4 +82,5 @@ public class Inventory : MonoBehaviour {
 		this.items [clampedSlot1] = swappedObject;
 		return;
 	}
+
 }

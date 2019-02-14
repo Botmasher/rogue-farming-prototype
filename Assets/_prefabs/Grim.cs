@@ -86,6 +86,11 @@ public class Grim : MonoBehaviour {
 			isSwiping = false;
 		}
 
+		/* Use action */
+		// ui slot selected and press "use" then attempt to plant
+		// - if selected rogue and raycast hit a FarmPlot then plant
+		// - "use"? - if selected weapon/armor have it highlighted then store it until selecting rogue to attach it to
+
 	}
 
 	void FixedUpdate () {
@@ -134,6 +139,8 @@ public class Grim : MonoBehaviour {
 		if (Physics.Raycast (this.transform.position, this.transform.TransformDirection (Vector3.down), out hit)) {
 			switch (hit.collider.gameObject.tag) {
 				// decide farm behavior based on plot status
+				case ("Pickup"):
+					break;
 				case ("FarmPlot"):
 					SwipeFarm (hit.collider.gameObject);
 					break;

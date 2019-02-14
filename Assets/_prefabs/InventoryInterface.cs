@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class InventoryInterface : MonoBehaviour {
 
@@ -27,8 +28,17 @@ public class InventoryInterface : MonoBehaviour {
 	public float hidingSpeed = 3f; 		// speed factor for sliding inventory onscreen or offscreen
 	Vector3 backgroundTargetPosition; 	// for storing calculated target show or hide position
 
+	// raycast interaction with inventory
+	GraphicRaycaster raycaster; 		// canvas ui raycaster
+	PointerEventData pointerEventData; 	// setup for cursor/pointer position
+	EventSystem eventSystem; 			// scene hierarchy event system
+
 	// arrange slots
 	void Start() {
+		// reference event and raycast components
+		raycaster = GetComponentInParent <GraphicRaycaster>();
+		eventSystem = GetComponentInParent <EventSystem> ();
+
 		// store the script parent image interface component
 		background = this.GetComponent<RectTransform> ();
 
@@ -65,10 +75,38 @@ public class InventoryInterface : MonoBehaviour {
 		}
 	}
 
-	// animate ui
+	// interact with and animate ui
 	void Update() {
+
+		/*  Inventory interaction */
+		// TODO: drag and drop to attach weapons and armor to rogue
+
+		// ui raycast against pointer position on select input
+		// adapted from https://docs.unity3d.com/ScriptReference/UI.GraphicRaycaster.Raycast.html
+		if (Input.GetButton ("Select")) {
+			// track mouse position using event system
+			pointerEventData = new PointerEventData (eventSystem);
+			pointerEventData.position = Input.mousePosition;
+			// container for raycast hits
+			List<RaycastResult> raycastResults = new List <RaycastResult> ();
+			// perform raycast and check all hit items
+			raycaster.Raycast (pointerEventData, raycastResults);
+			// identify selected slot
+			foreach (RaycastResult raycastResult in raycastResults) {
+				if (raycastResult.gameObject.tag == "InterfaceSlot") {
+					int slotIndex = slotList.IndexOf(raycastResult.gameObject.GetComponent<Image> ());
+					Debug.Log ("The UI element is in my list as slot #" + slotIndex);
+				}
+			}
+		}
+
+		// TODO: raycast hover for info
+
+
+		/* Inventory visibility */
+
 		// toggle show/hide - control flow for lockout during animation
-		if (Input.GetKeyDown (KeyCode.I)) {
+		if (Input.GetButtonDown ("Inventory")) {
 			// flip hiding flag
 			isHidden = !isHidden;
 			// set position to onscreen or offscreen
@@ -93,6 +131,43 @@ public class InventoryInterface : MonoBehaviour {
 			);
 		}
 
+	}
+
+
+	/* handle interactions with individual real (non-ui) items and slots */
+
+	// completely rework items ui just to contain only those items in current Inventory items list
+	// TODO: just initialize the entire items and slots from the inventory list and refresh them here
+	void RefreshSlots(List <GameObject> newItems) {
+		// too many items for the inventory ui
+		if (newItems.Count > slotCount) {
+			Debug.Log ("Inventory UI slots count out of sync with Inventory items!");
+		}
+		// sync slots and items ui with actual item objects
+		for (int i = 0; i < itemList.Count; i++) {
+			// reference the script on this item ui
+			InventoryInterfaceItem itemInventoryBehavior = itemList [i].GetComponent <InventoryInterfaceItem> ();
+			// clear out all item data from the item slots ui
+			itemInventoryBehavior.Clear ();
+			// update the item ui with info for newly added items
+			if (i < newItems.Count) {
+				itemInventoryBehavior.Store (newItems [i]);
+			}
+		}
+	}
+
+	// set the currently selected slot and item based on raycast hit
+	void SelectSlot() {
+		// if the raycast click is a slot ui then set it to selected
+		// if selected item ui (same list index) IsEmpty then selected item is null
+	}
+
+	// add an item to a slot
+	// OR just use refreshslots above so all adding is done through Inventory
+	void AddItem(GameObject item) {
+		// TODO: figure out which slots are open and add
+		// - reject back so Inventory.Drop() automatically drops if no slots available
+		// - the drop can then message back to drop from grim hand
 	}
 
 }

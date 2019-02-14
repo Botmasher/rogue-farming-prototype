@@ -252,7 +252,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 2
-  distanceZ: -26
+  distanceZ: -20
   rotationX: 10
   distanceY: 10
   target: {fileID: 442849981}
