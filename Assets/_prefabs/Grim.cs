@@ -19,10 +19,11 @@ public class Grim : MonoBehaviour {
 	private float leeway = 0.05f; 	// small wiggle room around zero before registering axis
 	private Rigidbody rigidbody; 	// reference to grim body for physics
 
-	// behavior flags
+	// behavior checks
 	private bool isMoving = false;
 	private bool isSwiping = false;
-	private float swipeTimer; 		// count down for swipe impact
+	private float swipeTimer; 			// count down for swipe impact
+	private GameObject collidedObject; 	// store recent collision for interactables like pickups
 
 	// environment interaction
 	//private GameObject focusedPlot; // farm plot for planting, gathering or info
@@ -37,6 +38,9 @@ public class Grim : MonoBehaviour {
 		// set initial sprite
 		renderer = this.GetComponentInChildren <SpriteRenderer> ();
 		renderer.sprite = spriteDefault;
+
+		// fetch the inventory behavior for this grim
+		inventory = GetComponentInChildren <Inventory> ();
 
 		// store body for movement through physics forces
 		rigidbody = GetComponent<Rigidbody> ();
@@ -90,6 +94,9 @@ public class Grim : MonoBehaviour {
 		// ui slot selected and press "use" then attempt to plant
 		// - if selected rogue and raycast hit a FarmPlot then plant
 		// - "use"? - if selected weapon/armor have it highlighted then store it until selecting rogue to attach it to
+		if (Input.GetButtonDown ("Use")) {
+			HandleUse ();
+		}
 
 	}
 
@@ -131,16 +138,45 @@ public class Grim : MonoBehaviour {
 		// if/case ...
 	}
 
+	// grab inventory item on use
+	void PickUp (GameObject pickupItem) {
+		Debug.Log (string.Format("Attempting to pick up item {0}", pickupItem));
+		// physically pick up item and attach it here
+		pickupItem.transform.position = this.transform.position;
 
-	/* Raycast cases */
+		// place item in inventory
+		bool didAdd = inventory.AddItem (pickupItem);
+
+		// 
+		if (didAdd) {
+			
+		}
+		return;
+	}
+
+	/* Colliders and raycasts */
+
+	// TODO: separate pickup from use - currently use does both side by side
+	void HandleUse () {
+		// INSTEAD: automatically pick up collided Pickup items
+//		// check to pick up ground items if in contact with them
+//		if (collidedObject != null) {
+//			// selected object is item for grim inventory
+//			if (collidedObject.tag == "Pickup") {
+//				Debug.Log (collidedObject);
+//				PickUp (collidedObject);
+//				return;
+//			}
+//		}
+		// TODO: nothing to pick up - use an inventory item if one exists
+		return;
+	}
 
 	void HandleSwipe () {
 		// raycast to check for farm plot
-		if (Physics.Raycast (this.transform.position, this.transform.TransformDirection (Vector3.down), out hit)) {
+		if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.down), out hit)) {
 			switch (hit.collider.gameObject.tag) {
 				// decide farm behavior based on plot status
-				case ("Pickup"):
-					break;
 				case ("FarmPlot"):
 					SwipeFarm (hit.collider.gameObject);
 					break;
@@ -148,6 +184,14 @@ public class Grim : MonoBehaviour {
 				default:
 					break;
 			}
+		}
+	}
+
+
+	// pickup touched objects automatically
+	void OnCollisionEnter (Collision collision) {
+		if (collision.gameObject.tag == "Pickup") {
+			PickUp (collision.gameObject);
 		}
 	}
 

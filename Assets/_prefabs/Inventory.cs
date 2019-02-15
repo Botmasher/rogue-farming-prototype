@@ -22,7 +22,7 @@ public class Inventory : MonoBehaviour {
 
 	// inventory and items data
 	List<GameObject> items = new List<GameObject> ();
-	int limit = 12;
+	public int itemLimit = 10;
 	int selected = 0;
 
 	// ui reference for visualization
@@ -46,23 +46,41 @@ public class Inventory : MonoBehaviour {
 		//items.ForEach (item => Debug.Log (item));
 	}
 
-	GameObject DropItemAt(int slot) {
+	GameObject RemoveItemAt(int slot) {
 		int clampedSlot = this.ClampSlot (slot);
 		items.RemoveAt (clampedSlot);
 		GameObject item = items [clampedSlot];
 		return item;
 	}
 
-	void DropItem(GameObject item) {
+	void RemoveItem(GameObject item) {
 		items.Remove (item);
+		// reactivate item and unparent from carrier
+		item.transform.parent = null;
+		item.SetActive (true);
 	}
 
 	// pass item into inventory
-	void AddItem(GameObject item) {
-		if (items.Count < limit) {
+	public bool AddItem(GameObject item) {
+		
+		// add it to the items list if it fits
+		if (items.Count < itemLimit && !items.Contains(item)) {
+			// add pickup to the list
 			this.items.Add (item);
+
+			// deactivate and nest item object under the Inventory
+			item.transform.SetParent (this.transform);
+			item.SetActive (false);
+
+			// add pickup to the UI
+			inventoryUI.RefreshSlots (items);
+
+			return true;
 		}
-		// otherwise just have grim drop it
+
+		// did not fit - have toss the pickup
+		item.GetComponent<Rigidbody> ().AddForce (Vector3.right * 50f);
+		return false;
 	}
 
 	int ClampSlot(int slot) {

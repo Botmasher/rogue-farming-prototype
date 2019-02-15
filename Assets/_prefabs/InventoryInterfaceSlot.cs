@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryInterfaceItem : MonoBehaviour {
+public class InventoryInterfaceSlot : MonoBehaviour {
 
 	// pickup behavior associated with item
 	public Pickup item;
 
-	// expect stored items to have an icon - reference the rendering component
+	// reference the renderer for stored item icons
+	// expect incoming stored item to have a sprite icon to render
 	Image image;
 
+	// image when not displaying item sprite
+	public Sprite defaultSprite;
+
 	void Start () {
-		// rendering component for setting sprite
+		// grab renderer and display the starting sprite
 		image = GetComponent<Image> ();
+		image.sprite = defaultSprite;
 	}
 
 	// point to an inventory object
@@ -24,13 +29,9 @@ public class InventoryInterfaceItem : MonoBehaviour {
 	}
 
 	// send back and remove the pointed object
-	public GameObject Retrieve () {
-		return item.gameObject;
-		// empty out the ui image
-		image.sprite = null;
-	}
-
 	public void Clear () {
+		// empty out the ui image and the pickup
+		image.sprite = defaultSprite;
 		item = null;
 	}
 

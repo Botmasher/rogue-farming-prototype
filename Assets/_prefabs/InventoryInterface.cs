@@ -10,14 +10,12 @@ public class InventoryInterface : MonoBehaviour {
 
 	// inventory slots
 	public Image slot; 					// image and transforms for proliferating and visualizing storage slots
-	public Image slotItem; 				// empty item icon holder to place above each slot
 	public int slotCount = 10; 			// number of slots to create for displaying inventory items
 	private RectTransform background; 	// self reference for managing inventory position on screen
 
 	// container for referencing created slot images and items by index
 	// NOTE: sync up with Inventory in order to keep visuals parallel to data
 	private List<Image> slotList = new List<Image> ();
-	private List<Image> itemList = new List<Image> ();
 
 	// inventory images positioning
 	public Vector3 slotStartPosition;
@@ -53,24 +51,15 @@ public class InventoryInterface : MonoBehaviour {
 			
 			// create and store slot
 			slotList.Add (GameObject.Instantiate (slot) as Image);
-			itemList.Add (GameObject.Instantiate (slotItem) as Image);
 
 			// parent to keep slot and item ui under inventory in canvas
 			slotList [i].rectTransform.SetParent (background.transform);
-			itemList [i].rectTransform.SetParent (slotList [i].transform);
 
 			// position slot along the row
 			slotList [i].rectTransform.anchoredPosition3D = new Vector3 (
 				slotPositionX + slotSpacingHorizontal,
 				slotStartPosition.y,
 				slotStartPosition.z
-			);
-
-			// position a corresponding item holder slightly atop the slot
-			itemList [i].rectTransform.anchoredPosition3D = new Vector3 (
-				slotList [i].rectTransform.anchoredPosition3D.x,
-				slotList [i].rectTransform.anchoredPosition3D.y,
-				slotList [i].rectTransform.anchoredPosition3D.z - 1f
 			);
 		}
 	}
@@ -138,21 +127,22 @@ public class InventoryInterface : MonoBehaviour {
 
 	// completely rework items ui just to contain only those items in current Inventory items list
 	// TODO: just initialize the entire items and slots from the inventory list and refresh them here
-	void RefreshSlots(List <GameObject> newItems) {
+	public void RefreshSlots(List <GameObject> newItems) {
 		// too many items for the inventory ui
-		if (newItems.Count > slotCount) {
+		if (newItems.Count > slotList.Count) {
 			Debug.Log ("Inventory UI slots count out of sync with Inventory items!");
 		}
 		// sync slots and items ui with actual item objects
-		for (int i = 0; i < itemList.Count; i++) {
+		int slotIndex = 0;
+		foreach (GameObject item in newItems) {
+			Debug.Log ("Trying to add a pickup on pass " + slotIndex);
 			// reference the script on this item ui
-			InventoryInterfaceItem itemInventoryBehavior = itemList [i].GetComponent <InventoryInterfaceItem> ();
-			// clear out all item data from the item slots ui
-			itemInventoryBehavior.Clear ();
-			// update the item ui with info for newly added items
-			if (i < newItems.Count) {
-				itemInventoryBehavior.Store (newItems [i]);
-			}
+			InventoryInterfaceSlot slotBehavior = slotList [slotIndex].GetComponent <InventoryInterfaceSlot> ();
+			// clear out all item data from slot ui
+			slotBehavior.Clear ();
+			// update the slot ui with info for newly added item
+			slotBehavior.Store (newItems [slotIndex]);
+			slotIndex++;
 		}
 	}
 

@@ -7,6 +7,7 @@ TagManager:
   - FarmPlot
   - InterfaceSlot
   - InterfaceItem
+  - Pickup
   layers:
   - Default
   - TransparentFX
