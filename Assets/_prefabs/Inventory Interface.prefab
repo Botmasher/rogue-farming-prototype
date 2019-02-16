@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114592532657462808}
   - component: {fileID: 114096418441698636}
   m_Layer: 5
-  m_Name: Inventory UI
+  m_Name: Inventory Interface
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,7 +41,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slot: {fileID: 114463576242910402, guid: bcdabb9784e0b4c728b50ceaca2b2d98, type: 2}
-  slotItem: {fileID: 114018083814563656, guid: f932ff8e10e414545a5959ebc82536e2, type: 2}
   slotCount: 12
   slotStartPosition: {x: -970, y: 0, z: 0}
   slotSpacingHorizontal: 150

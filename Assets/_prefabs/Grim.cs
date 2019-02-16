@@ -140,36 +140,43 @@ public class Grim : MonoBehaviour {
 
 	// grab inventory item on use
 	void PickUp (GameObject pickupItem) {
-		Debug.Log (string.Format("Attempting to pick up item {0}", pickupItem));
 		// physically pick up item and attach it here
 		pickupItem.transform.position = this.transform.position;
 
 		// place item in inventory
 		bool didAdd = inventory.AddItem (pickupItem);
 
-		// 
-		if (didAdd) {
-			
+		// did not fit - have grim toss the pickup
+		if (!didAdd) {
+			pickupItem.GetComponent<Rigidbody> ().AddForce (Vector3.right * 10f);
 		}
 		return;
 	}
 
-	/* Colliders and raycasts */
+	/* Input actions - including their colliders and raycasts */
 
-	// TODO: separate pickup from use - currently use does both side by side
+	// on explicit use input
 	void HandleUse () {
-		// INSTEAD: automatically pick up collided Pickup items
-//		// check to pick up ground items if in contact with them
-//		if (collidedObject != null) {
-//			// selected object is item for grim inventory
-//			if (collidedObject.tag == "Pickup") {
-//				Debug.Log (collidedObject);
-//				PickUp (collidedObject);
-//				return;
-//			}
-//		}
-		// TODO: nothing to pick up - use an inventory item if one exists
+		// TODO: use an inventory item if one exists
+		GameObject usedItem = inventory.UseSelected ();
+
+		if (usedItem != null) {
+			// move and toss the item slightly outside to avoid collider push
+			usedItem.transform.Translate (Vector3.back * 1.2f);
+			usedItem.GetComponent<Rigidbody> ().AddForce (Vector3.right * 10f);
+
+			// TEMP coroutine for testing thrown out item
+			StartCoroutine (WaitThenResetPickup (usedItem, 0.8f));
+		}
+
 		return;
+	}
+
+	// TEMP coroutine for resetting tossed item
+	IEnumerator WaitThenResetPickup (GameObject pickup, float timer) {
+		pickup.tag = "Untagged";
+		yield return new WaitForSeconds (timer);
+		pickup.tag = "Pickup";
 	}
 
 	void HandleSwipe () {

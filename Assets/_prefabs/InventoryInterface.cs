@@ -6,20 +6,20 @@ using UnityEngine.EventSystems;
 
 public class InventoryInterface : MonoBehaviour {
 
-	// TODO: configure slot interation within individual slots
-
-	// inventory slots
+	// inventory ui slots info
 	public Image slot; 					// image and transforms for proliferating and visualizing storage slots
-	public int slotCount = 10; 			// number of slots to create for displaying inventory items
 	private RectTransform background; 	// self reference for managing inventory position on screen
 
 	// container for referencing created slot images and items by index
-	// NOTE: sync up with Inventory in order to keep visuals parallel to data
+	// NOTE: slots length derived from inventory items - sync Inventory to keep visuals parallel to data
 	private List<Image> slotList = new List<Image> ();
 
-	// inventory images positioning
+	// inventory ui image positioning
 	public Vector3 slotStartPosition;
 	public float slotSpacingHorizontal;
+
+	// reference to the inventory tied to this ui for sending results of player interactions
+	public Inventory inventory;
 
 	// animation control
 	bool isHidden = false; 				// toggle visibility
@@ -30,6 +30,9 @@ public class InventoryInterface : MonoBehaviour {
 	GraphicRaycaster raycaster; 		// canvas ui raycaster
 	PointerEventData pointerEventData; 	// setup for cursor/pointer position
 	EventSystem eventSystem; 			// scene hierarchy event system
+
+	// currently selected item slot or -1 if none selected
+	int selectedSlot = -1;
 
 	// arrange slots
 	void Start() {
@@ -42,7 +45,7 @@ public class InventoryInterface : MonoBehaviour {
 
 		// set up slot images to display visuals relating to Inventory list data
 		float slotPositionX; 	// temporarily hold incrementing slot horizontal positions
-		for (int i = 0; i < slotCount; i++) {
+		for (int i = 0; i < inventory.Limit(); i++) {
 			// calculate the next horizontal value for the slot to be created
 			slotPositionX = i > 0
 				? slotList[i - 1].rectTransform.anchoredPosition3D.x
@@ -70,9 +73,9 @@ public class InventoryInterface : MonoBehaviour {
 		/*  Inventory interaction */
 		// TODO: drag and drop to attach weapons and armor to rogue
 
-		// ui raycast against pointer position on select input
+		// use pointer input to select
 		// adapted from https://docs.unity3d.com/ScriptReference/UI.GraphicRaycaster.Raycast.html
-		if (Input.GetButton ("Select")) {
+		if (Input.GetButtonDown ("Select")) {
 			// track mouse position using event system
 			pointerEventData = new PointerEventData (eventSystem);
 			pointerEventData.position = Input.mousePosition;
@@ -80,18 +83,39 @@ public class InventoryInterface : MonoBehaviour {
 			List<RaycastResult> raycastResults = new List <RaycastResult> ();
 			// perform raycast and check all hit items
 			raycaster.Raycast (pointerEventData, raycastResults);
+
 			// identify selected slot
 			foreach (RaycastResult raycastResult in raycastResults) {
 				if (raycastResult.gameObject.tag == "InterfaceSlot") {
-					int slotIndex = slotList.IndexOf(raycastResult.gameObject.GetComponent<Image> ());
-					Debug.Log ("The UI element is in my list as slot #" + slotIndex);
+					// determine the index of the hit ui slot
+					int slotIndex = slotList.IndexOf (raycastResult.gameObject.GetComponent<Image> ());
+
+					// notify the inventory of the selected index
+					inventory.SelectSlot (slotIndex);
+
+					// unhighlight the previously selected item
+					if (selectedSlot > -1) {
+						slotList [selectedSlot].GetComponent <InventoryInterfaceSlot> ().Deselect ();
+					}
+						
+					// deselect the same slot selected again 
+					if (selectedSlot == slotIndex) {
+						slotList [selectedSlot].GetComponent <InventoryInterfaceSlot> ().Deselect ();
+						selectedSlot = -1;
+					// set and highlight the newly selected one
+					} else {
+						selectedSlot = slotIndex;
+						slotList [selectedSlot].GetComponent <InventoryInterfaceSlot> ().Select();
+					}
 				}
 			}
 		}
 
+		// TODO: update inventory if player swaps or attaches items, then have inventory refresh ui
+
 		// TODO: raycast hover for info
 
-
+	
 		/* Inventory visibility */
 
 		// toggle show/hide - control flow for lockout during animation
@@ -126,38 +150,34 @@ public class InventoryInterface : MonoBehaviour {
 	/* handle interactions with individual real (non-ui) items and slots */
 
 	// completely rework items ui just to contain only those items in current Inventory items list
-	// TODO: just initialize the entire items and slots from the inventory list and refresh them here
 	public void RefreshSlots(List <GameObject> newItems) {
+		Debug.Log ("Refreshing the inventory completely");
+
+		// completely deselect the item and the ui connection to it
+		inventory.SelectSlot (-1);
+		selectedSlot = -1;
+
 		// too many items for the inventory ui
 		if (newItems.Count > slotList.Count) {
 			Debug.Log ("Inventory UI slots count out of sync with Inventory items!");
+			return;
 		}
+
 		// sync slots and items ui with actual item objects
-		int slotIndex = 0;
-		foreach (GameObject item in newItems) {
-			Debug.Log ("Trying to add a pickup on pass " + slotIndex);
+		for (int i = 0; i < slotList.Count; i++) {
+
 			// reference the script on this item ui
-			InventoryInterfaceSlot slotBehavior = slotList [slotIndex].GetComponent <InventoryInterfaceSlot> ();
+			InventoryInterfaceSlot slotBehavior = slotList [i].GetComponent <InventoryInterfaceSlot> ();
+
 			// clear out all item data from slot ui
 			slotBehavior.Clear ();
-			// update the slot ui with info for newly added item
-			slotBehavior.Store (newItems [slotIndex]);
-			slotIndex++;
+
+			// update slot ui with info for newly added item
+			if (i < newItems.Count) {
+				slotBehavior.Store (newItems [i]);
+			}
 		}
-	}
 
-	// set the currently selected slot and item based on raycast hit
-	void SelectSlot() {
-		// if the raycast click is a slot ui then set it to selected
-		// if selected item ui (same list index) IsEmpty then selected item is null
-	}
-
-	// add an item to a slot
-	// OR just use refreshslots above so all adding is done through Inventory
-	void AddItem(GameObject item) {
-		// TODO: figure out which slots are open and add
-		// - reject back so Inventory.Drop() automatically drops if no slots available
-		// - the drop can then message back to drop from grim hand
 	}
 
 }
