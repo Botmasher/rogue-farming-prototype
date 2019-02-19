@@ -15,15 +15,32 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 	// image when not displaying item sprite
 	public Sprite defaultSprite;
 
+	// 
+	bool selected = false;
+
 	void Start () {
 		// grab renderer and display the starting sprite
 		image = GetComponent<Image> ();
 		image.sprite = defaultSprite;
 	}
 
-	// display the item as selected or deselected
-	public void Select () { image.color = Color.red; }
-	public void Deselect () { image.color = Color.white; }
+	// set selection status and color of display
+	public void Select () {
+		selected = true;
+		image.color = Color.red;
+	}
+	public void Deselect () {
+		selected = false;
+		image.color = Color.white;
+	}
+	public void Toggle () {
+		// switch selection status for choosing the same slot multiple times
+		if (!selected) {
+			Select ();
+		} else {
+			Deselect ();
+		}
+	}
 
 	// point to an inventory object
 	public void Store (GameObject newItem) {
@@ -35,9 +52,10 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 	// send back and remove the pointed object
 	public void Clear () {
 		// empty out the ui image and the pickup
-		Deselect();
 		image.sprite = defaultSprite;
 		item = null;
+		// maintain selection status to allow toggling
+		//Deselect();
 	}
 
 	// check if there is no pickup

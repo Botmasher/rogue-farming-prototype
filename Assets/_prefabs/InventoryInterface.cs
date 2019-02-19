@@ -31,8 +31,11 @@ public class InventoryInterface : MonoBehaviour {
 	PointerEventData pointerEventData; 	// setup for cursor/pointer position
 	EventSystem eventSystem; 			// scene hierarchy event system
 
-	// currently selected item slot or -1 if none selected
-	int selectedSlot = -1;
+	// slot activity including dragging and selection
+	int selectedSlot = -1; 		// latest slot selected with button up
+	int draggedSlot = -1; 		// current slot with button held down
+	int landedSlot = -1; 		// target slot that a dragged slot is dropped onto
+	Vector3 draggedPosition; 	// starting position of a dragged slot for snapback
 
 	// arrange slots
 	void Start() {
@@ -71,49 +74,70 @@ public class InventoryInterface : MonoBehaviour {
 	void Update() {
 
 		/*  Inventory interaction */
-		// TODO: drag and drop to attach weapons and armor to rogue
 
-		// use pointer input to select
-		// adapted from https://docs.unity3d.com/ScriptReference/UI.GraphicRaycaster.Raycast.html
-		if (Input.GetButtonDown ("Select")) {
-			// track mouse position using event system
-			pointerEventData = new PointerEventData (eventSystem);
-			pointerEventData.position = Input.mousePosition;
-			// container for raycast hits
-			List<RaycastResult> raycastResults = new List <RaycastResult> ();
-			// perform raycast and check all hit items
-			raycaster.Raycast (pointerEventData, raycastResults);
+		// drag and drop to attach weapons and armor to rogue
 
-			// identify selected slot
-			foreach (RaycastResult raycastResult in raycastResults) {
-				if (raycastResult.gameObject.tag == "InterfaceSlot") {
-					// determine the index of the hit ui slot
-					int slotIndex = slotList.IndexOf (raycastResult.gameObject.GetComponent<Image> ());
+		// store current slot if dragging started and no other slot is being dragged
+		if (Input.GetButtonDown ("Select") && draggedSlot < 0) {
+			// store current pointed-to slot as the active slot
+			draggedSlot = RaycastSlot ();
 
-					// notify the inventory of the selected index
-					inventory.SelectSlot (slotIndex);
+			// hit a valid item slot
+			if (draggedSlot > -1) {
+				// remember the original position of the dragged slot
+				draggedPosition = slotList [draggedSlot].transform.position;
 
-					// unhighlight the previously selected item
-					if (selectedSlot > -1) {
-						slotList [selectedSlot].GetComponent <InventoryInterfaceSlot> ().Deselect ();
-					}
-						
-					// deselect the same slot selected again 
-					if (selectedSlot == slotIndex) {
-						slotList [selectedSlot].GetComponent <InventoryInterfaceSlot> ().Deselect ();
-						selectedSlot = -1;
-					// set and highlight the newly selected one
-					} else {
-						selectedSlot = slotIndex;
-						slotList [selectedSlot].GetComponent <InventoryInterfaceSlot> ().Select();
-					}
+				// unhighlight the previously selected slot
+				if (selectedSlot > -1) {
+					slotList [selectedSlot].GetComponent <InventoryInterfaceSlot> ().Deselect ();
 				}
+
+				// highlight the new slot
+				slotList [draggedSlot].GetComponent<InventoryInterfaceSlot> ().Select ();
 			}
 		}
+
+		// release dragged slot to select
+		else if (Input.GetButtonUp ("Select") && draggedSlot > -1) {
+			
+			// update the selected index based on the latest released slot (-1 if none hit)
+			selectedSlot = draggedSlot;
+
+			// TODO: update with actions to perform after dragged is dropped
+			// reset the position of the dragged slot
+			slotList [draggedSlot].transform.position = draggedPosition;
+			landedSlot = RaycastSlot ();
+
+			// if dragged lands somewhere:
+			// 	- determine if the item can attach to the other (if it's a Weapon or Armor for a Rogue)
+			// 	- if it attaches to a free 
+			// 	- set selected slot to DRAGGED TO (LANDED) TARGET if the two combine
+			// 	- set selected slot to DRAGGED INDEX if no combining/attaching is possible
+			Debug.Log (string.Format("Slot {0} landed on slot {1}!", draggedSlot, landedSlot));
+
+			if (landedSlot > -1) {
+				inventory.AttachItem (draggedSlot, landedSlot);
+			}
+
+			// notify the inventory of the selected index
+			inventory.SelectSlot (selectedSlot);
+
+			// no currently active slot
+			draggedSlot = -1;
+		}
+
+		// update the position of the dragged slot
+		else if (Input.GetButton ("Select") && draggedSlot > -1) {
+			// direct use of mouse position works for canvas render mode "Screen Space - Overlay"
+			slotList [draggedSlot].transform.position = Input.mousePosition;
+		}
+
 
 		// TODO: update inventory if player swaps or attaches items, then have inventory refresh ui
 
 		// TODO: raycast hover for info
+		// - OR within individual interface slot?
+		// - show Rogue weapon, armor filling equipment spots (otherwise no indication currently)
 
 	
 		/* Inventory visibility */
@@ -146,8 +170,30 @@ public class InventoryInterface : MonoBehaviour {
 
 	}
 
+	/* Interact with individual ui slots */
 
-	/* handle interactions with individual real (non-ui) items and slots */
+	// grab the index of the ui slot at raycasted mouse position
+	// adapted from https://docs.unity3d.com/ScriptReference/UI.GraphicRaycaster.Raycast.html
+	int RaycastSlot () {
+		// track mouse position using event system
+		pointerEventData = new PointerEventData (eventSystem);
+		pointerEventData.position = Input.mousePosition;
+		// container for raycast hits
+		List<RaycastResult> raycastResults = new List <RaycastResult> ();
+		// perform raycast and check all hit items
+		raycaster.Raycast (pointerEventData, raycastResults);
+		// identify pressed slot
+		foreach (RaycastResult raycastResult in raycastResults) {
+			if (raycastResult.gameObject.tag == "InterfaceSlot") {
+				// return the index of the hit ui slot
+				return slotList.IndexOf (raycastResult.gameObject.GetComponent<Image> ());
+			}
+		}
+		return -1;
+	}
+
+
+	/* Interact with individual real (non-ui) items in inventory items list */
 
 	// completely rework items ui just to contain only those items in current Inventory items list
 	public void RefreshSlots(List <GameObject> newItems) {

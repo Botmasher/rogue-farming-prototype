@@ -104,6 +104,69 @@ public class Inventory : MonoBehaviour {
 		return itemLimit;
 	}
 
+	// split one item into multiple on Add - used for rogue equipment
+	bool SeparateItem (GameObject item) {
+		// TODO: abstract out (as with AttachItem) for anything with attachments
+		if (item.GetComponent<Rogue> ()) {
+			Rogue rogue = item.GetComponent <Rogue> ();
+			GameObject weapon = rogue.weaponEquipment;
+			GameObject armor = rogue.armorEquipment;
+			rogue.weaponEquipment = null;
+			rogue.armorEquipment = null;
+
+			// TODO: correctly manage adding to inventory ONLY if rogue, weapon and armor all fit
+			// add weapons and armor to inventory if they fit
+			if (weapon != null) {
+				if (items.Count < itemLimit) {
+					items.Add (weapon);
+				} else {
+					return false;
+				}
+			}
+			if (armor != null) {
+				if (items.Count < itemLimit) {
+					items.Add (armor);
+				} else {
+					return false;
+				}
+			}
+
+			// remove items from rogue if able to add them to inventory
+			rogue.weaponEquipment = null;
+			rogue.armorEquipment = null;
+
+			return true;
+		}
+		return false;
+	}
+
+	// UI callable method to try to attach item under another - use to add Weapon and Armor to Rogue
+	// return the new index of the original source item, either its original spot or its new attached spot
+	public int AttachItem (int sourceIndex, int targetIndex) {
+		GameObject sourceItem = items [sourceIndex];
+		GameObject targetItem = items [targetIndex];
+
+		// TODO: abstract this to any attachables to anything with attachments
+		// check target for a rogue
+		if (targetItem.GetComponent<Rogue> () != null) {
+			Rogue rogue = targetItem.GetComponent<Rogue> ();
+			// make sure the source is a piece of weapon or armor equipment
+			// and attach if a spot is available within the rogue
+			if (sourceItem.GetComponent<Weapon> () && rogue.weaponEquipment == null) {
+				rogue.weaponEquipment = sourceItem;
+				// get rid of this item in slots since it's now part of rogue
+				RemoveItemAt (sourceIndex);
+				// return the index of the target if the two were combined
+				return targetIndex;
+			} else if (sourceItem.GetComponent<Armor> () && rogue.armorEquipment == null) {
+				rogue.armorEquipment = sourceItem;
+				return targetIndex;
+			}
+		}
+		// return the index of the selected item if unable to attach
+		return sourceIndex;
+	}
+
 
 	/* 	Collection methods so far underdeveloped
 	 *
@@ -132,7 +195,9 @@ public class Inventory : MonoBehaviour {
 		return this.items [clampedSlot];
 	}
 
-	void SwapSlots(int slot1, int slot2) {
+	// allow inventory to drag-drop switch places of two items
+	// NOTE: use in limited way to drop items into free slot at the end of list
+	public void SwapSlots(int slot1, int slot2) {
 		int clampedSlot1 = this.ClampSlot (slot1);
 		int clampedSlot2 = this.ClampSlot (slot2);
 		GameObject swappedObject = this.items[clampedSlot2];
