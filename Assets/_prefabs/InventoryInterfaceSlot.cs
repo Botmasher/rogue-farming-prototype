@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class InventoryInterfaceSlot : MonoBehaviour {
 
 	// pickup behavior associated with item for grabbing its sprite
-	public Pickup item;
+	public GameObject item;
 
 	// reference the renderer for stored item icons
 	// expect incoming stored item to have a sprite icon to render
@@ -44,9 +44,9 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 
 	// point to an inventory object
 	public void Store (GameObject newItem) {
-		item = newItem.GetComponent<Pickup> ();
+		item = newItem;
 		// update the image displayed in the ui
-		image.sprite = item.inventorySprite;
+		image.sprite = newItem.GetComponent <SpriteRenderer> ().sprite;
 	}
 
 	// send back and remove the pointed object

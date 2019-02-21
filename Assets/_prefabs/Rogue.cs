@@ -19,8 +19,7 @@ public class Rogue : MonoBehaviour {
 	public GameObject armorEquipment;
 
 	// TODO: generate unique name for each rogue
-	// 	- or let player name the rogue
-	string name = "Asdf";
+	public string name = "Asdf";
 
 	// determine skills gained in castle for boosts
 	int enemyPoints = 0;
@@ -61,9 +60,10 @@ public class Rogue : MonoBehaviour {
 		if (this.health <= 0) {
 			this.health = 0;
 			this.isAlive = false;
-			Debug.Log (string.Format("Rogue {0} has perished in the Castle!\nPress Q to Quit", this.name));
+			Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
 		}
 
+		// TODO: remove this and automate each rogue's behaviors inside one castle
 		// take actions over time
 		if (this.actionCounter <= 0) {
 			if (this.isFighting && Input.GetKeyDown (KeyCode.F)) {

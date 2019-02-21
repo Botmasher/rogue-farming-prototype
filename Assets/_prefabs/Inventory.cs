@@ -48,16 +48,18 @@ public class Inventory : MonoBehaviour {
 		item.SetActive (true);
 	}
 
-	// pass item into inventory
+	// vet item and determine whether and how to add it to inventory
 	public bool AddItem(GameObject item) {
-		// add it to the items list if it fits
-		if (items.Count < itemLimit && !items.Contains(item)) {
-			// add pickup to the list
-			this.items.Add (item);
+		// attempt to separate rogue into equipment pieces
+		if (item.GetComponent <Rogue> ()) {
+			// either split and add to inventory or throw back
+			return TakeApart (item);
+		}
 
-			// deactivate and nest item object under the Inventory
-			item.transform.SetParent (this.transform);
-			item.SetActive (false);
+		// add it to the items list if it fits
+		else if (items.Count < itemLimit) {
+			// store and parent to this object
+			StoreWithinInventory (item);
 
 			// add pickup to the UI
 			inventoryUI.RefreshSlots (items);
@@ -67,6 +69,20 @@ public class Inventory : MonoBehaviour {
 
 		// did not fit
 		return false;
+	}
+
+	// store pickup item in and parent item to inventory
+	private void StoreWithinInventory (GameObject item) {
+		if (!items.Contains (item)) {
+			// add item to the list
+			this.items.Add (item);
+
+			// deactivate and nest item object under the Inventory
+			item.transform.SetParent (this.transform);
+			item.SetActive (false);
+
+			Debug.Log ("Inventory length: " + items.Count);
+		}
 	}
 
 	// TODO: plant in plot or affect player instead of putting it back in the world
@@ -80,7 +96,7 @@ public class Inventory : MonoBehaviour {
 			// retrieve the selected item
 			GameObject item = items[selectedIndex];
 
-		//	// put the item back in the world
+			// put the item back in the world
 			items.RemoveAt (selectedIndex);
 			item.transform.parent = null;
 			item.SetActive (true);
@@ -104,45 +120,54 @@ public class Inventory : MonoBehaviour {
 		return itemLimit;
 	}
 
-	// split one item into multiple on Add - used for rogue equipment
-	bool SeparateItem (GameObject item) {
+	// split one item into multiple in AddItem - used for rogue equipment
+	private bool TakeApart (GameObject item) {
 		// TODO: abstract out (as with AttachItem) for anything with attachments
 		if (item.GetComponent<Rogue> ()) {
+			Debug.Log ("Definitely dealing with a rogue here...");
+			// grab rogue and its equipment 
 			Rogue rogue = item.GetComponent <Rogue> ();
 			GameObject weapon = rogue.weaponEquipment;
 			GameObject armor = rogue.armorEquipment;
+
+			// add up the equipment to be separated
+			int piecesCount = 1; 	// at least a rogue
+			piecesCount = weapon != null ? piecesCount + 1 : piecesCount + 0;
+			piecesCount = armor != null ? piecesCount + 1 : piecesCount + 0;
+
+			// avoid splitting and storing if rogue pieces do not fit in inventory
+			if (items.Count + piecesCount > itemLimit) {
+				return false;
+			}
+
+			// add rogue and equipment to inventory
+			if (weapon != null) StoreWithinInventory (weapon);
+			if (armor != null) StoreWithinInventory (armor);
+			StoreWithinInventory (rogue.gameObject);
+
+			// remove items from rogue now that they are stored in inventory
 			rogue.weaponEquipment = null;
 			rogue.armorEquipment = null;
 
-			// TODO: correctly manage adding to inventory ONLY if rogue, weapon and armor all fit
-			// add weapons and armor to inventory if they fit
-			if (weapon != null) {
-				if (items.Count < itemLimit) {
-					items.Add (weapon);
-				} else {
-					return false;
-				}
-			}
-			if (armor != null) {
-				if (items.Count < itemLimit) {
-					items.Add (armor);
-				} else {
-					return false;
-				}
-			}
+			// reset inventory interface
+			inventoryUI.RefreshSlots (items);
 
-			// remove items from rogue if able to add them to inventory
-			rogue.weaponEquipment = null;
-			rogue.armorEquipment = null;
-
+			// successfully added rogue and equipment
 			return true;
 		}
+		// unable to add rogue and equipment
 		return false;
 	}
 
 	// UI callable method to try to attach item under another - use to add Weapon and Armor to Rogue
 	// return the new index of the original source item, either its original spot or its new attached spot
 	public int AttachItem (int sourceIndex, int targetIndex) {
+		// catch indexes out of items range
+		if (sourceIndex + 1 > items.Count || targetIndex + 1 > items.Count) {
+			return -1;
+		}
+
+		// grab the item attachment and the item to attach it to
 		GameObject sourceItem = items [sourceIndex];
 		GameObject targetItem = items [targetIndex];
 
