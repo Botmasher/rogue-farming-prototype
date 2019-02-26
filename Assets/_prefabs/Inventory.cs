@@ -74,6 +74,8 @@ public class Inventory : MonoBehaviour {
 	// store pickup item in and parent item to inventory
 	private void StoreWithinInventory (GameObject item) {
 		if (!items.Contains (item)) {
+			Debug.Log (string.Format ("Storing item within inventory: {0}", item));
+
 			// add item to the list
 			this.items.Add (item);
 
@@ -124,11 +126,11 @@ public class Inventory : MonoBehaviour {
 	private bool TakeApart (GameObject item) {
 		// TODO: abstract out (as with AttachItem) for anything with attachments
 		if (item.GetComponent<Rogue> ()) {
-			Debug.Log ("Definitely dealing with a rogue here...");
+
 			// grab rogue and its equipment 
 			Rogue rogue = item.GetComponent <Rogue> ();
-			GameObject weapon = rogue.weaponEquipment;
-			GameObject armor = rogue.armorEquipment;
+			GameObject weapon = rogue.GetWeapon ();
+			GameObject armor = rogue.GetArmor ();
 
 			// add up the equipment to be separated
 			int piecesCount = 1; 	// at least a rogue
@@ -146,8 +148,8 @@ public class Inventory : MonoBehaviour {
 			StoreWithinInventory (rogue.gameObject);
 
 			// remove items from rogue now that they are stored in inventory
-			rogue.weaponEquipment = null;
-			rogue.armorEquipment = null;
+			rogue.Unequip ("weapon");
+			rogue.Unequip ("armor");
 
 			// reset inventory interface
 			inventoryUI.RefreshSlots (items);
@@ -174,18 +176,18 @@ public class Inventory : MonoBehaviour {
 		// TODO: abstract this to any attachables to anything with attachments
 		// check target for a rogue
 		if (targetItem.GetComponent<Rogue> () != null) {
+			// setup rogue and flag for attachment
 			Rogue rogue = targetItem.GetComponent<Rogue> ();
-			// make sure the source is a piece of weapon or armor equipment
-			// and attach if a spot is available within the rogue
-			if (sourceItem.GetComponent<Weapon> () && rogue.weaponEquipment == null) {
-				rogue.weaponEquipment = sourceItem;
-				// get rid of this item in slots since it's now part of rogue
-				RemoveItemAt (sourceIndex);
+			bool didAttachItem = rogue.Equip (sourceItem);
+
+			// get rid of attached item unique listing and refresh inventory
+			if (didAttachItem) {
+				items.RemoveAt (sourceIndex);
+				inventoryUI.RefreshSlots (items);
 				// return the index of the target if the two were combined
 				return targetIndex;
-			} else if (sourceItem.GetComponent<Armor> () && rogue.armorEquipment == null) {
-				rogue.armorEquipment = sourceItem;
-				return targetIndex;
+
+				// TODO: stack showing attachments in inventory slit
 			}
 		}
 		// return the index of the selected item if unable to attach

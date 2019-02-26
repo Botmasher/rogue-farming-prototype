@@ -14,9 +14,14 @@ public class Rogue : MonoBehaviour {
 	int health = 50;
 	public bool isAlive = true;
 
-	// actual weaponry and armor stats
-	public GameObject weaponEquipment;
+	// weaponry and armor storage
+	public Dictionary <string, GameObject> equipment = new Dictionary<string, GameObject> () {
+		{ "armor", null },
+		{ "weapon", null }
+	};
+	// starting equipment
 	public GameObject armorEquipment;
+	public GameObject weaponEquipment;
 
 	// TODO: generate unique name for each rogue
 	public string name = "Asdf";
@@ -54,6 +59,12 @@ public class Rogue : MonoBehaviour {
 	// factor pushing events in your favor
 	// TODO go through lucky events and add to luck meter
 	float luck = 0.05f;
+
+	void Start () {
+		// store starting equipment
+		if (weaponEquipment != null) equipment["weapon"] = weaponEquipment;
+		if (armorEquipment != null) equipment ["armor"] = armorEquipment;
+	}
 
 	void Update() {
 		// assess health
@@ -118,6 +129,51 @@ public class Rogue : MonoBehaviour {
 		Debug.Log ("Press E to Evade!");
 		//this.actionCounter = 120;
 	}
+
+	// attach item to rogue equipment spot - created for Grim inventory management
+	public bool Equip (GameObject item, bool switchOut=false) {
+		// make sure the item is a piece of weapon or armor equipment
+		// and attach if a spot is available within the rogue
+
+		// attach weapon item to behavior and object
+		if (item.GetComponent<Weapon> () && (equipment["weapon"] == null || switchOut)) {
+			equipment["weapon"] = item;
+			item.transform.SetParent (this.transform);
+			return true;
+		}
+		// attach armor item to behavior and object
+		else if (item.GetComponent<Armor> () && (equipment["armor"] == null || switchOut)) {
+			equipment["armor"] = item;
+			item.transform.SetParent (this.transform);
+			return true;
+		}
+		// unequippable item 
+		else {
+			return false;
+		}
+	}
+
+	// remove item from rogue equipment spot - for Grim inventory
+	public bool Unequip (string itemKey=null) {
+		// remove specific equipment entry
+		if (equipment.ContainsKey (itemKey) && equipment[itemKey] != null) {
+			equipment [itemKey] = null;
+			return true;
+		}
+		// no valid equipment key or equipment entry
+		return false;
+	}
+
+	// fetch equipment objects - created for Grim inventory
+	public GameObject GetWeapon () {
+		return equipment ["weapon"];
+	}
+	public GameObject GetArmor () {
+		return equipment ["armor"];
+	}
+
+
+	/* Internal methods for adventuring through generated obstacles */
 
 	void FightEnemy() {
 		// roll for a zero-to-one plus luck chance
