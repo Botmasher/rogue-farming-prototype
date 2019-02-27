@@ -16,21 +16,10 @@ public class DayManager : MonoBehaviour {
 	// time constants
 	// TODO pin more to deltaTime instead of tracking only frames
 	float secondsPerHour = 4f; 		// how long a game hour lasts in realtime
-	int hoursPerDay = 10; 			// divide day into 0-n (n exclusive) hours range
-	int morningHour = 1; 			// strikes on the first hour (one hour after day reset)
-	int noonHour = 4;
-	int eveningHour = 6;
-	int nightHour = 7;
+	int hoursPerDay = 12; 			// divide day into 0-n (n exclusive) hours range
 
 	// listener events to subscribe/announce and callbacks to run
-	Dictionary<string, List<Action>> events = new Dictionary<string, List<Action>> () {
-		{ "hour", new List<Action> () },
-		{ "day", new List<Action> () },
-		{ "morning", new List<Action> () },
-		{ "noon", new List<Action> () },
-		{ "evening", new List<Action> () },
-		{ "night", new List<Action> () }
-	};
+	Dictionary<int, List<Action>> events = new Dictionary<int, List<Action>> ();
 
 	void Awake () {
 		// static singleton for global public access
@@ -44,70 +33,70 @@ public class DayManager : MonoBehaviour {
 
 	void Start () {
 		// start with full counters to trigger new day actions on first day
-		this.secondsCounter = this.secondsPerHour;
-		this.days = -1;
-		this.hour = hoursPerDay;
+		secondsCounter = secondsPerHour;
+		days = -1;
+		hour = hoursPerDay;
+
+		// initialize all hours with empty actions lists for callbacks
+		// times run from 0:00 to n-1:99 so hours per day limit is never struck
+		for (int i = 0; i < hoursPerDay; i++) {
+			events [i] = new List<Action> ();
+		}
 
 		// test subscribing for day events
-		this.At("hour", () => Debug.Log("Another hour has passed"));
-		this.At("day", () => Debug.Log(string.Format("Day {0} - brand new day!", this.days + 1)));
-		this.At("morning", () => Debug.Log("it's morning!"));
-		this.At("noon", () => Debug.Log("it's noon!"));
-		this.At("evening", () => Debug.Log("it's evening!"));
-		this.At("night", () => Debug.Log("it's night!"));
+		this.At(0, () => Debug.Log("It's a brand new day! Day " + days + " in fact."));
+
 	}
 
 	void Update() {
-		this.secondsCounter += Time.deltaTime;
+		secondsCounter += Time.deltaTime;
 		// an hour has passed
-		if (this.secondsCounter >= this.secondsPerHour) {
-			this.hour++;
-			this.secondsCounter = 0f;
-			this.Announce ("hour");
+		if (secondsCounter >= secondsPerHour) {
+			hour++;
+			secondsCounter = 0f;
 			// a full day has passed
-			if (this.hour >= this.hoursPerDay) {
-				this.days++;
-				this.hour = 0;
-				this.Announce("day");
-			// clock struck an event hour
-			} else if (this.hour == morningHour) {
-				this.Announce("morning");
-			} else if (this.hour == noonHour) {
-				this.Announce("noon");
-			} else if (this.hour == eveningHour) {
-				this.Announce("evening");
-			} else if (this.hour == nightHour) {
-				this.Announce("night");
-			// no events
+			if (hour >= hoursPerDay) {
+				days++;
+				hour = 0;
 			}
-//			else {
-//				// do nothing
-//			}
+			// run hourly callbacks
+			Announce (hour);
 		}
 	}
 
 	// event notification
-	private void Announce(string eventName) {
-		// run through 
-		this.events[eventName].ForEach(cb => cb());
+	private void Announce(int eventHour) {
+		// run through all actions at this time
+		events[eventHour].ForEach(cb => cb());
 	}
 
 	// unsubscribe from event
-	public void NotAt(string eventName, Action callback) {
-		if (this.events.ContainsKey(eventName) && this.events[eventName].Contains(callback)) {
-			this.events[eventName].Remove(callback);
+	public void NotAt(int eventHour, Action callback) {
+		if (events.ContainsKey(eventHour) && events[eventHour].Contains(callback)) {
+			events[eventHour].Remove(callback);
 		} else {
-			Debug.Log (string.Format("Failed to unsubscribe from Day event - unknown event {0} or callback {1}", eventName, callback));
+			Debug.Log (string.Format("Failed to unsubscribe from Day event - unknown event {0} or callback {1}", eventHour, callback));
 		}
 	}
 
 	// listener subscription
-	public void At(string eventName, Action callback) {
-		if (this.events.ContainsKey(eventName)) {
-			this.events[eventName].Add (callback);
+	public void At(int eventHour, Action callback) {
+		if (events.ContainsKey(eventHour)) {
+			events[eventHour].Add (callback);
 		} else {
-			Debug.Log (string.Format("Failed to subscribe to Day event - invalid event \"{0}\"", eventName));
+			Debug.Log (string.Format("Failed to subscribe to Day event - invalid event \"{0}\"", eventHour));
 		}
 	}
 
+	// subscribe for actions run every hour
+	public void EveryHour(Action callback) {
+		
+	}
+
+	// count relative days from the current time
+	// NOTE: subscribe to 0 hour for fixed new day
+	public int EveryDay(Action callback) {
+		At(hour, callback);
+		return hour;
+	}
 }

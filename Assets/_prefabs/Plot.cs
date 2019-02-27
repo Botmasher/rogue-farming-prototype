@@ -59,7 +59,7 @@ public class Plot : MonoBehaviour {
 		//this.SetRogue (rogue);
 		if (castle) castle.resetCastle ();
 
-		DayManager.Day.At("noon", () => Debug.Log("Logging a noontime message from a Plot outside DayManager"));
+		DayManager.Day.At(6, () => Debug.Log("Logging a halfday message from a Plot outside DayManager"));
 	}
 
 	void Update () {
@@ -105,6 +105,29 @@ public class Plot : MonoBehaviour {
 
 	}
 
+	// TODO: have rogue run through obstacles each day
+	private void GrowRogue () {
+		// should rogue run through the whole level on growth stage? or perform actions every hour?
+		// like: "rogue made it through level 1, opening W chests, defeating X enemies, Y treasures, Z bosses. Currently on level 2."
+		return;
+	}
+
+	// place rogue in plot and begin growing each day
+	public bool PlantRogue(GameObject newRogue) {
+		if (rogue == null && !GameObject.Equals(newRogue.GetComponent<Rogue> (), null)) {
+			rogue = newRogue.GetComponent<Rogue> ();
+
+			// TODO: remove rogue object from inventory and place within plot
+
+			int plantedTime = DayManager.Day.EveryDay (() => GrowRogue());
+
+			// TODO: initialize obstacles ("castle") and start running rogue through obstacles
+
+			return true;
+		}
+		return false;
+	}
+
 	public void EndCastle () {
 		Debug.Log ("Congratulations! Your rogue finished the castle completely and utterly!");
 		Application.Quit ();
@@ -114,7 +137,4 @@ public class Plot : MonoBehaviour {
 		this.castle = castle;
 	}
 
-	public void SetRogue(Rogue rogue) {
-		this.rogue = rogue;
-	}
 }
