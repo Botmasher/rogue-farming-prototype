@@ -37,12 +37,17 @@ public class Plot : MonoBehaviour {
 			return this.isEmpty;
 		}
 	}
-	int growthStage = 0; 		// once reaches 3 (Done) ready to pick
+	int growthStageCurrent = 0;
+	int growthStageMax = 3;
 	public int GrowthStage {
 		get {
-			return this.growthStage;
+			return this.growthStageCurrent;
 		}
 	}
+
+	// storing actions and timing for communicating with day manager
+	int plantedHour = -1;
+	System.Action growthAction;
 
 	void Start () {
 		// add all sprites to the list
@@ -59,11 +64,13 @@ public class Plot : MonoBehaviour {
 		//this.SetRogue (rogue);
 		if (castle) castle.resetCastle ();
 
-		DayManager.Day.At(6, () => Debug.Log("Logging a halfday message from a Plot outside DayManager"));
+		// cyclical behavior for day manager
+		growthAction = () => GrowRogue ();
 	}
 
 	void Update () {
-		
+
+		// TODO: simplify and abstract rogue castle runthrough
 		// check if rogue is free for tasks
 		if (rogue && !rogue.IsBusy () && cooldownTimer <= 0f) {
 			// keep iterating through levels of obstacles until castle sequence done
@@ -72,14 +79,14 @@ public class Plot : MonoBehaviour {
 					currentLevel++;
 					obstacleIndex = 0;
 				}
-				if (currentLevel >= castle.levelObstacles.Count) {
-					this.EndCastle ();
-				}
+//				if (currentLevel >= castle.levelObstacles.Count) {
+//					this.EndCastle ();
+//				}
 				currentObstacle = castle.levelObstacles [currentLevel][obstacleIndex];
 				obstacleIndex++;
 			} else {
 				currentObstacle = "None";
-				this.EndCastle ();
+				//this.EndCastle ();
 			}
 
 			// task rogue to interact with obstacle as expected
@@ -105,11 +112,40 @@ public class Plot : MonoBehaviour {
 
 	}
 
-	// TODO: have rogue run through obstacles each day
+	// TODO: have rogue run through obstacles each day - see Update
+	/*
+	 * PLANTING
+	 * - have grim pass rogue to plot on plant action
+	 * - parent rogue, make it invisible, not and store rogue beneath plot
+	 * GROWING
+	 * - have castle throw obstacles of certain types at rogue
+	 * - have rogue decide how to attempt those obstacles
+	 * - advance through one level each day until dying or finished
+	 * - consider: what should happen (storywise and growth/harvest) if rogue makes it all the way?
+	 * HARVESTING
+	 * - pop rogue back out into the world (not directly into grim inventory)
+	 */
 	private void GrowRogue () {
 		// should rogue run through the whole level on growth stage? or perform actions every hour?
 		// like: "rogue made it through level 1, opening W chests, defeating X enemies, Y treasures, Z bosses. Currently on level 2."
+		growthStageCurrent++;
 		return;
+	}
+
+	public GameObject HarvestRogue () {
+		// planted rogue ready for harvest
+		if (rogue != null && growthStageCurrent == growthStageMax) {
+			// reset planted rogue and castle scheduling
+			growthStageCurrent = 0;
+			DayManager.Day.NotAt (plantedHour, growthAction);
+			plantedHour = -1;
+
+			// hand rogue over to harvester
+			rogue = null;
+			return rogue.gameObject;
+		}
+		// no grown rogue to harvest
+		return null;
 	}
 
 	// place rogue in plot and begin growing each day
@@ -119,22 +155,25 @@ public class Plot : MonoBehaviour {
 
 			// TODO: remove rogue object from inventory and place within plot
 
-			int plantedTime = DayManager.Day.EveryDay (() => GrowRogue());
+			plantedHour = DayManager.Day.EveryDay (growthAction);
 
-			// TODO: initialize obstacles ("castle") and start running rogue through obstacles
+			// initialize obstacles ("castle") to run rogue through
+			castle.resetCastle ();
 
 			return true;
 		}
 		return false;
 	}
 
-	public void EndCastle () {
-		Debug.Log ("Congratulations! Your rogue finished the castle completely and utterly!");
-		Application.Quit ();
-	}
+	// NOTE: first-pass rogue demo method for ending game once rogue runs through castle
+//	public void EndCastle () {
+//		Debug.Log ("Congratulations! Your rogue finished the castle completely and utterly!");
+//		Application.Quit ();
+//	}
 
-	public void SetCaslte(Castle castle) {
-		this.castle = castle;
-	}
+	// TODO: just keep one castle through inspector/prefab for whenever plot instantiated
+//	public void SetCaslte(Castle castle) {
+//		this.castle = castle;
+//	}
 
 }

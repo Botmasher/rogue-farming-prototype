@@ -90,7 +90,9 @@ public class DayManager : MonoBehaviour {
 
 	// subscribe for actions run every hour
 	public void EveryHour(Action callback) {
-		
+		foreach (KeyValuePair<int, List<Action>> hourlyActions in this.events) {
+			hourlyActions.Value.Add (callback);
+		}
 	}
 
 	// count relative days from the current time
