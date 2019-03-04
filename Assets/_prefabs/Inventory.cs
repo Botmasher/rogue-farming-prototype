@@ -98,6 +98,17 @@ public class Inventory : MonoBehaviour {
 			// retrieve the selected item
 			GameObject item = items[selectedIndex];
 
+			// do not get rid of rogues without complete weapon or armor
+			// TODO: contract for telling if selected item IsUsable
+			if (item.GetComponent <Rogue> () != null && (item.GetComponent<Rogue> ().GetWeapon() == null || item.GetComponent <Rogue> ().GetArmor() == null)) {
+				return null;
+			}
+			// do not get rid of unattached weapon or armor - crafted to remain in inventory or as rogue attachments only
+			// TODO: consider adjusting weapon and armor to exist as object in world
+			else if (item.GetComponent <Weapon> () != null || item.GetComponent<Armor> () != null) {
+				return null;
+			}
+
 			// put the item back in the world
 			items.RemoveAt (selectedIndex);
 			item.transform.parent = null;

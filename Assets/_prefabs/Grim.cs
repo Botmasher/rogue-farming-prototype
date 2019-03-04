@@ -157,10 +157,29 @@ public class Grim : MonoBehaviour {
 
 	// on explicit use input
 	void HandleUse () {
-		// TODO: use an inventory item if one exists
+		// grab current inventory item
 		GameObject usedItem = inventory.UseSelected ();
 
-		if (usedItem != null) {
+		// no item to use
+		if (usedItem == null) return;
+
+		bool didUse = false;
+
+		Debug.Log ("Using item ", usedItem);
+
+		// plant a rogue in inventory in a farm plot
+		GameObject groundTile = GetGroundObject ();
+		if (groundTile != null && groundTile.tag == "FarmPlot") {
+			Rogue rogue = usedItem.GetComponent<Rogue> ();
+			if (rogue != null && rogue.GetWeapon() != null && rogue.GetArmor() != null) {
+				// set used flag depending if able or unable to plant
+				didUse = PlantRogue (rogue.gameObject, groundTile);
+			}
+		}
+
+		// unable to use item - ditch it in the world
+		// TODO: put item back in inventory
+		if (!didUse) {
 			// move and toss the item slightly outside to avoid collider push
 			usedItem.transform.Translate (Vector3.back * 1.2f);
 			usedItem.GetComponent<Rigidbody> ().AddForce (Vector3.right * 10f);
@@ -172,6 +191,11 @@ public class Grim : MonoBehaviour {
 		return;
 	}
 
+	// attach a rogue to a plot and initiate growth
+	bool PlantRogue (GameObject rogue, GameObject plot) {
+		return plot.GetComponent<Plot> ().PlantRogue (rogue);
+	}
+
 	// TEMP coroutine for resetting tossed item
 	IEnumerator WaitThenResetPickup (GameObject pickup, float timer) {
 		pickup.tag = "Untagged";
@@ -180,12 +204,13 @@ public class Grim : MonoBehaviour {
 	}
 
 	void HandleSwipe () {
-		// raycast to check for farm plot
-		if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.down), out hit)) {
-			switch (hit.collider.gameObject.tag) {
+		// interact if standing on farm plot
+		GameObject groundTile = GetGroundObject();
+		if (groundTile != null) {
+			switch (groundTile.tag) {
 				// decide farm behavior based on plot status
 				case ("FarmPlot"):
-					SwipeFarm (hit.collider.gameObject);
+					SwipeFarm (groundTile);
 					break;
 				// ignore raycasted object
 				default:
@@ -194,12 +219,17 @@ public class Grim : MonoBehaviour {
 		}
 	}
 
-
 	// pickup touched objects automatically
 	void OnCollisionEnter (Collision collision) {
 		if (collision.gameObject.tag == "Pickup") {
 			PickUp (collision.gameObject);
 		}
+	}
+
+	// raycast down beneath grim feet
+	GameObject GetGroundObject () {
+		Physics.Raycast (transform.position, transform.TransformDirection (Vector3.down), out hit);
+		return hit.collider.gameObject;
 	}
 
 }
