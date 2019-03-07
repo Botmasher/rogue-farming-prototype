@@ -200,8 +200,9 @@ public class InventoryInterface : MonoBehaviour {
 		Debug.Log ("Refreshing the inventory completely");
 
 		// completely deselect the item and the ui connection to it
-		inventory.SelectSlot (-1);
-		selectedSlot = -1;
+		// NOTE: conflicts with maintaining selection during attachment/unattachment of rogue equipment
+		//inventory.SelectSlot (-1);
+		//selectedSlot = -1;
 
 		// too many items for the inventory ui
 		if (newItems.Count > slotList.Count) {
@@ -221,6 +222,10 @@ public class InventoryInterface : MonoBehaviour {
 			// update slot ui with info for newly added item
 			if (i < newItems.Count) {
 				slotBehavior.Store (newItems [i]);
+			}
+
+			if (slotBehavior.item == null) {
+				slotBehavior.Deselect ();
 			}
 		}
 

@@ -13,6 +13,9 @@ public class DayManager : MonoBehaviour {
 	int hour; 				// number of hours passed this day
 	float secondsCounter; 	// keep track of real seconds to divide into game hours and days
 
+	// time passage factor
+	public float speed = 1f; 		// slow or speed up time
+
 	// time constants
 	// TODO pin more to deltaTime instead of tracking only frames
 	float secondsPerHour = 4f; 		// how long a game hour lasts in realtime
@@ -49,7 +52,7 @@ public class DayManager : MonoBehaviour {
 	}
 
 	void Update() {
-		secondsCounter += Time.deltaTime;
+		secondsCounter += Time.deltaTime * speed;
 		// an hour has passed
 		if (secondsCounter >= secondsPerHour) {
 			hour++;

@@ -178,8 +178,12 @@ public class Grim : MonoBehaviour {
 		}
 
 		// unable to use item - ditch it in the world
-		// TODO: put item back in inventory
+		// TODO: leave item in / put item back in inventory
 		if (!didUse) {
+			// reactivate as independent object in world
+			usedItem.transform.SetParent (null);
+			usedItem.SetActive (true);
+
 			// move and toss the item slightly outside to avoid collider push
 			usedItem.transform.Translate (Vector3.back * 1.2f);
 			usedItem.GetComponent<Rigidbody> ().AddForce (Vector3.right * 10f);

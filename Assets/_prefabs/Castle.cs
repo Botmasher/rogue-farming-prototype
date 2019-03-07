@@ -226,10 +226,11 @@ public class Castle : MonoBehaviour {
 		levelObstacles.Add (level3);
 		levelObstacles.Add (level4);
 
-		this.printList (level1);
-		this.printList (level2);
-		this.printList (level3);
-		this.printList (level4);
+		// Log the obstacles in each level
+		//this.printList (level1);
+		//this.printList (level2);
+		//this.printList (level3);
+		//this.printList (level4);
 
 		return;
 	}

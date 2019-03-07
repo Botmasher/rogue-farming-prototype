@@ -70,45 +70,47 @@ public class Plot : MonoBehaviour {
 
 	void Update () {
 
+		/*  Run rogue through castle */
+
 		// TODO: simplify and abstract rogue castle runthrough
 		// check if rogue is free for tasks
-		if (rogue && !rogue.IsBusy () && cooldownTimer <= 0f) {
-			// keep iterating through levels of obstacles until castle sequence done
-			if (currentLevel < castle.levelObstacles.Count) {
-				if (obstacleIndex >= castle.levelObstacles [currentLevel].Count) {
-					currentLevel++;
-					obstacleIndex = 0;
-				}
-//				if (currentLevel >= castle.levelObstacles.Count) {
-//					this.EndCastle ();
+//		if (rogue && !rogue.IsBusy () && cooldownTimer <= 0f) {
+//			// keep iterating through levels of obstacles until castle sequence done
+//			if (currentLevel < castle.levelObstacles.Count) {
+//				if (obstacleIndex >= castle.levelObstacles [currentLevel].Count) {
+//					currentLevel++;
+//					obstacleIndex = 0;
 //				}
-				currentObstacle = castle.levelObstacles [currentLevel][obstacleIndex];
-				obstacleIndex++;
-			} else {
-				currentObstacle = "None";
-				//this.EndCastle ();
-			}
-
-			// task rogue to interact with obstacle as expected
-			if (castle.enemies.ContainsKey (currentObstacle)) {
-				// get rogue to fight enemy
-				rogue.AssignEnemy (currentObstacle, castle.enemies[currentObstacle]);
-			} else if (castle.treasures.ContainsKey (currentObstacle)) {
-				// get rogue to open treasure
-				rogue.AssignTreasure (currentObstacle, castle.treasures[currentObstacle]);
-			} else if (castle.hazards.ContainsKey (currentObstacle)) {
-				// get rogue to evade hazard
-				rogue.AssignHazard (currentObstacle, castle.hazards[currentObstacle]);
-			} else {
-				// unknown obstacle
-				Debug.Log(string.Format("Castle does not seem to contain any obstacle named {0}", currentObstacle));
-			}
-			cooldownTimer = 0.1f;
-		}
-
-		if (cooldownTimer > 0f) {
-			cooldownTimer -= Time.deltaTime;
-		}
+////				if (currentLevel >= castle.levelObstacles.Count) {
+////					this.EndCastle ();
+////				}
+//				currentObstacle = castle.levelObstacles [currentLevel][obstacleIndex];
+//				obstacleIndex++;
+//			} else {
+//				currentObstacle = "None";
+//				//this.EndCastle ();
+//			}
+//
+//			// task rogue to interact with obstacle as expected
+//			if (castle.enemies.ContainsKey (currentObstacle)) {
+//				// get rogue to fight enemy
+//				rogue.AssignEnemy (currentObstacle, castle.enemies[currentObstacle]);
+//			} else if (castle.treasures.ContainsKey (currentObstacle)) {
+//				// get rogue to open treasure
+//				rogue.AssignTreasure (currentObstacle, castle.treasures[currentObstacle]);
+//			} else if (castle.hazards.ContainsKey (currentObstacle)) {
+//				// get rogue to evade hazard
+//				rogue.AssignHazard (currentObstacle, castle.hazards[currentObstacle]);
+//			} else {
+//				// unknown obstacle
+//				Debug.Log(string.Format("Castle does not seem to contain any obstacle named {0}", currentObstacle));
+//			}
+//			cooldownTimer = 0.1f;
+//		}
+//
+//		if (cooldownTimer > 0f) {
+//			cooldownTimer -= Time.deltaTime;
+//		}
 
 	}
 
@@ -125,13 +127,54 @@ public class Plot : MonoBehaviour {
 	 * HARVESTING
 	 * - pop rogue back out into the world (not directly into grim inventory)
 	 */
-	private void GrowRogue () {
-		// should rogue run through the whole level on growth stage? or perform actions every hour?
-		// like: "rogue made it through level 1, opening W chests, defeating X enemies, Y treasures, Z bosses. Currently on level 2."
-		growthStageCurrent++;
+	void GrowRogue () {
+		// increment growth stage
+		growthStageCurrent = Mathf.Min (growthStageCurrent + 1, growthStageMax);
+		Debug.Log ("Plot " + this.name + " grew its rogue one more day. Growth Stage: " + this.GrowthStage);
+
+		// TODO: rot if too long or weather factors intervene?
+
+		// TODO: should rogue run through the whole level on growth stage? or perform actions every hour?
+		// 	- example: "rogue conquered 2 levels, opened 3 chests, avoided 18 hazards, defeated 27 enemies and 2 bosses. Now struggling through level 3."
+
 		return;
 	}
 
+	// Handle details of associating or unassociating rogue to this plot
+	// - use during planting or harvesting of current rogue
+	void SetRogue (GameObject newRogue) {
+		rogue = newRogue.GetComponent<Rogue> ();
+		rogue.transform.SetParent (this.transform);
+		rogue.gameObject.SetActive (false);
+	}
+	GameObject UnsetRogue () {
+		GameObject oldRogue = rogue.gameObject;
+		rogue = null;
+		rogue.transform.SetParent (null);
+		rogue.gameObject.SetActive (true);
+		return oldRogue;
+	}
+
+	// place rogue in plot and begin growing each day
+	public bool PlantRogue(GameObject newRogue) {
+		if (rogue == null && !GameObject.Equals(newRogue.GetComponent<Rogue> (), null)) {
+			// attach incoming rogue to this plot
+			SetRogue (newRogue);
+
+			// set up day callback to start cycling growth
+			plantedHour = DayManager.Day.EveryDay (growthAction);
+
+			// initialize obstacles ("castle") to run rogue through
+			castle.resetCastle ();
+
+			Debug.Log ("Planted rogue in Plot");
+
+			return true;
+		}
+		return false;
+	}
+
+	// retrieve rogue from plot and reset growth
 	public GameObject HarvestRogue () {
 		// planted rogue ready for harvest
 		if (rogue != null && growthStageCurrent == growthStageMax) {
@@ -141,28 +184,10 @@ public class Plot : MonoBehaviour {
 			plantedHour = -1;
 
 			// hand rogue over to harvester
-			rogue = null;
-			return rogue.gameObject;
+			return UnsetRogue ();
 		}
 		// no grown rogue to harvest
 		return null;
-	}
-
-	// place rogue in plot and begin growing each day
-	public bool PlantRogue(GameObject newRogue) {
-		if (rogue == null && !GameObject.Equals(newRogue.GetComponent<Rogue> (), null)) {
-			rogue = newRogue.GetComponent<Rogue> ();
-
-			// TODO: remove rogue object from inventory and place within plot
-
-			plantedHour = DayManager.Day.EveryDay (growthAction);
-
-			// initialize obstacles ("castle") to run rogue through
-			castle.resetCastle ();
-
-			return true;
-		}
-		return false;
 	}
 
 	// NOTE: first-pass rogue demo method for ending game once rogue runs through castle

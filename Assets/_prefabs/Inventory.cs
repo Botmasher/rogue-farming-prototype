@@ -109,15 +109,18 @@ public class Inventory : MonoBehaviour {
 				return null;
 			}
 
-			// put the item back in the world
+			// NOTE: item placement, hierarchy and activation handled through objects calling UseSelected
+			// 	- example: grim uses rogue from inventory and plants in plot, which now parents the rogue
+			//
+//			// put the item back in the world
+//			item.transform.parent = null;
+//			item.SetActive (true);
+
+			// remove item from inventory and reset the ui
 			items.RemoveAt (selectedIndex);
-			item.transform.parent = null;
-			item.SetActive (true);
-		
-			// reset the inventory ui
 			inventoryUI.RefreshSlots (items);
 
-			// return a reference to the item
+			// pass back the used item
 			return item;
 		}
 		return null;
@@ -193,12 +196,17 @@ public class Inventory : MonoBehaviour {
 
 			// get rid of attached item unique listing and refresh inventory
 			if (didAttachItem) {
+				// reactivate object to prepare for use (leave only top parent inactive)
+				sourceItem.SetActive (true);
+
+				// update the inventory
 				items.RemoveAt (sourceIndex);
 				inventoryUI.RefreshSlots (items);
+
 				// return the index of the target if the two were combined
 				return targetIndex;
 
-				// TODO: stack showing attachments in inventory slit
+				// TODO: stack showing attachments in inventory slot
 			}
 		}
 		// return the index of the selected item if unable to attach
