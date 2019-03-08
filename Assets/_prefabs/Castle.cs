@@ -7,6 +7,10 @@ public class Castle : MonoBehaviour {
 	// sequence of hazards and rewards to be met each level
 	public List<List <string>> levelObstacles = new List<List<string>> ();
 
+	// progress pointer to position within level obstacles
+	int currentLevel = 0;
+	int currentObstacle = 0;
+
 	// TODO use the int as stats for strength and toughness, or for chests as theft
 	// - rogue will do one attempt, take a hit to a stat, then do another attempt
 	// - hits to armor reduce damage to health, but health still always hit
@@ -86,12 +90,54 @@ public class Castle : MonoBehaviour {
 		}
 		Debug.Log (string.Concat(o, "]"));
 	}
+
+
+	/* Traverse through level obstacles - for advancing rogue through castle */
+
+	// advance current position one level and return sequence of traversed level obstacle keys
+	public List<string> RunLevel() {
+		// catch level index beyond existing levels
+		if (currentLevel >= levelObstacles.Count) {
+			Debug.Log ("Cannot advance levels beyond " + currentLevel + " in Castle " + this.name + ". All levels complete!");
+			return new List<string> ();
+		}
+
+		// store the current level obstacle keys and advance the level pointer
+		List<string> currentLevelObstacleIds = levelObstacles[currentLevel];
+		currentLevel++;
+
+		return currentLevelObstacleIds;
+	}
+
+	// advance current position one obstacle and return traversed obstacle key
+	public string RunObstacle(bool advanceLevel=false) {
+		// catch obstacle index beyond current level obstacles
+		if (currentObstacle >= levelObstacles [currentLevel].Count) {
+			Debug.Log ("Reached the end of the obstacles list for level " + currentLevel);
+			// optionally update the level index
+			if (advanceLevel) {
+				currentLevel++;
+			}
+			return "";
+		}
+
+		// store the current obstacle key and advance the obstacle pointer
+		string currentObstacleId = levelObstacles[currentLevel][currentObstacle];
+		currentObstacle++;
+
+		return currentObstacleId;
+	}
+
 	 
 	// build new list of levels listing castle obstacles encountered this playthrough
 	// these are sequential to simulate action order not to imply a linear level
-	public void resetCastle() {
+	public void ResetCastle() {
 		
 		// TODO town/merchants level?
+
+		// reset current progress
+		currentLevel = 0;
+		currentObstacle = 0;
 
 		/*
 		 * Level 1

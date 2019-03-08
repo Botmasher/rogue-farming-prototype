@@ -97,6 +97,20 @@ public class Rogue : MonoBehaviour {
 		}
 	}
 
+	// TODO: make obstacles GameObjects to combine features instead of balancing dictionaries and lists
+	public bool FeedObstacle (GameObject obstacle) {
+//		switch (obstacle.obstacleType) {
+//			case ("hazard"):
+//				this.EvadeHazard ();
+//
+//			// ...
+//
+//			default:
+//				break;
+//		}
+		return true;
+	}
+
 	// external check if available for assignment
 	public bool IsBusy () {
 		return (this.isFighting || this.isEvading || this.isThieving);

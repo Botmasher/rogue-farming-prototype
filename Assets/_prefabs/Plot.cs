@@ -62,7 +62,7 @@ public class Plot : MonoBehaviour {
 		// NOTE demo setting rogue and castle from the getgo 
 		//this.SetCaslte (castle);
 		//this.SetRogue (rogue);
-		if (castle) castle.resetCastle ();
+		if (castle) castle.ResetCastle ();
 
 		// cyclical behavior for day manager
 		growthAction = () => GrowRogue ();
@@ -129,13 +129,28 @@ public class Plot : MonoBehaviour {
 	 */
 	void GrowRogue () {
 		// increment growth stage
-		growthStageCurrent = Mathf.Min (growthStageCurrent + 1, growthStageMax);
+		if (growthStageCurrent >= growthStageMax) {
+			return;
+		}
+
+		// advance the growth stage
+		growthStageCurrent++;
+
+		// fetch current castle level info then advance castle level
+		List<string> obstacleIds = castle.RunLevel();
+
+		// send rogue obstacles to deal with 
+		// TODO: feed rogue a dataful obstacle object living under the castle instead of a string it has to check
+		foreach (string obstacleId in obstacleIds) {
+			rogue.FeedObstacle (new GameObject());
+		}
+
+		// TODO: track rogue progress and prep for ui display readout
+		// example: "rogue conquered 2 levels, opened 3 chests, avoided 18 hazards, defeated 27 enemies and 2 bosses. Now struggling through level 3."
+			
 		Debug.Log ("Plot " + this.name + " grew its rogue one more day. Growth Stage: " + this.GrowthStage);
 
-		// TODO: rot if too long or weather factors intervene?
-
-		// TODO: should rogue run through the whole level on growth stage? or perform actions every hour?
-		// 	- example: "rogue conquered 2 levels, opened 3 chests, avoided 18 hazards, defeated 27 enemies and 2 bosses. Now struggling through level 3."
+		// TODO: rot if too long or weather factors intervene
 
 		return;
 	}
@@ -165,7 +180,7 @@ public class Plot : MonoBehaviour {
 			plantedHour = DayManager.Day.EveryDay (growthAction);
 
 			// initialize obstacles ("castle") to run rogue through
-			castle.resetCastle ();
+			castle.ResetCastle ();
 
 			Debug.Log ("Planted rogue in Plot");
 
