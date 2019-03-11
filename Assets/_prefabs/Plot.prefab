@@ -113,6 +113,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a044adbc59748d69f45e71a8ab5fc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  castleObstacle: {fileID: 1092408797025580, guid: 66e07d6da7def496aa6eba10f39b0ff5,
+    type: 2}
+  levelCount: 3
 --- !u!212 &212498121215569990
 SpriteRenderer:
   m_ObjectHideFlags: 1

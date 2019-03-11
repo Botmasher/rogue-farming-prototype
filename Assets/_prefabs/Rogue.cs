@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Rogue : MonoBehaviour {
 
+	// TODO: (? FeedObstacle) use castle int stats for strength and toughness, or for chests as theft
+	// - rogue will do one attempt, take a hit to a stat, then do another attempt
+	// - hits to armor reduce damage to health, but health still always hit
+	// - attempts hit from weapon stat or from thievery stat
+	// - successful treasures add to gold stash to be brought back
+
 	// TODO: implement feedback from rogue-castle playtest
 	// - gold countup / reporting and logging not incrementing correctly (pile took treasure from 0 to 9)
 	// - the names were fun though
@@ -37,6 +43,7 @@ public class Rogue : MonoBehaviour {
 	bool isThieving = false;
 	// stats for the assigned obstacle
 	string enemyName = "";
+	string enemyType = "";
 	int enemyAttack = 0;
 	int enemyHealth = 0;
 	string treasureName = "";
@@ -98,16 +105,40 @@ public class Rogue : MonoBehaviour {
 	}
 
 	// TODO: make obstacles GameObjects to combine features instead of balancing dictionaries and lists
-	public bool FeedObstacle (GameObject obstacle) {
-//		switch (obstacle.obstacleType) {
-//			case ("hazard"):
-//				this.EvadeHazard ();
-//
-//			// ...
-//
-//			default:
-//				break;
+	public bool FeedObstacle (CastleObstacle obstacle) {
+		
+//		// async timing - now fed sync on growth cycle!
+//		// currently handling another obstacle - do not accept or advance through this obstacle
+//		if (IsBusy()) {
+//			return false;
 //		}
+
+		// TODO: just assign the obstacle, even let it communicate back to call the right methods in rogue
+
+		// assign and react to the obstacle depending on its type
+		switch (obstacle.obstacleType) {
+			case "hazard":
+				AssignHazard (obstacle.obstacleName, obstacle.obstacleValue);
+				EvadeHazard ();
+				break;
+
+			case "enemy":
+			case "boss":
+			case "miniBoss":
+			case "finalBoss":
+				AssignEnemy (obstacle.obstacleName, obstacle.obstacleType, obstacle.obstacleValue);
+				FightEnemy ();
+				break;
+
+			case "treasure":
+				AssignTreasure (obstacle.obstacleName, obstacle.obstacleValue);
+				OpenTreasure ();
+				break;
+
+			default:
+				return false;
+		}
+
 		return true;
 	}
 
@@ -116,14 +147,13 @@ public class Rogue : MonoBehaviour {
 		return (this.isFighting || this.isEvading || this.isThieving);
 	}
 
-	public void AssignEnemy (string enemyName, int strength) {
+	public void AssignEnemy (string enemyName, string enemyType, int strength) {
 		this.enemyName = enemyName;
+		this.enemyType = enemyType;
 		this.enemyAttack = strength;
 		this.enemyHealth = strength;
 		this.isFighting = true;
 		Debug.Log (string.Format("Rogue {0} is taking up arms against a {1}", this.name, enemyName));
-		Debug.Log ("Press F to Fight!");
-		//this.actionCounter = 120;
 	}
 
 	public void AssignTreasure (string treasureName, int trickiness) {
@@ -131,8 +161,6 @@ public class Rogue : MonoBehaviour {
 		this.treasureTrickiness = trickiness;
 		this.isThieving = true;
 		Debug.Log (string.Format("Rogue {0} is struggling to open a {1}", this.name, treasureName));
-		Debug.Log ("Press O to Open!");
-		//this.actionCounter = 120;
 	}
 
 	public void AssignHazard (string hazardName, int attack) {
@@ -140,8 +168,6 @@ public class Rogue : MonoBehaviour {
 		this.hazardAttack = attack;
 		this.isEvading = true;
 		Debug.Log (string.Format("Rogue {0} is craftily evading a {1}", this.name, hazardName));
-		Debug.Log ("Press E to Evade!");
-		//this.actionCounter = 120;
 	}
 
 	// attach item to rogue equipment spot - created for Grim inventory management
@@ -186,6 +212,12 @@ public class Rogue : MonoBehaviour {
 		return equipment ["armor"];
 	}
 
+	public void Live() {
+		isAlive = true;
+	}
+	public void Die() {
+		isAlive = false;
+	}
 
 	/* Internal methods for adventuring through generated obstacles */
 
@@ -217,8 +249,8 @@ public class Rogue : MonoBehaviour {
 			return;
 		}
 
-		// enemy attacks back - leave a small chance to evade
-		if (rollPlusLuck > 0.1f) {
+		// enemy attacks back - leave a small chance to evade non-bosses
+		if (rollPlusLuck > 0.1f || enemyType != "enemy") {
 			int attackStrength = Mathf.RoundToInt(this.enemyAttack - (this.enemyAttack * this.luck) - this.armor);
 			this.health -= attackStrength;
 			// chip away at the armor over time instead of knocking it all off
@@ -228,15 +260,15 @@ public class Rogue : MonoBehaviour {
 				this.armor
 			);
 			Debug.Log (string.Format("Enemy attacked - rogue health dropped to {0}", this.health));
+
+			if (health <= 0) {
+				Die ();
+			}
+
 		} else {
 			Debug.Log (string.Format("Evaded enemy attack - rogue health remains at {0}", this.health));
 		}
-
-		Debug.Log ("Press F to Fight even more!");
-		//this.actionCounter = 60;
 	}
-
-	// TODO log progress below in completion methods
 
 	// unassign and reset currently confronted enemy
 	void DefeatEnemy () {
@@ -280,12 +312,17 @@ public class Rogue : MonoBehaviour {
 		if ((this.agility >= this.hazardAttack) || (rollPlusLuck > (0.3f + (this.hazardAttack/100)))) {
 			Debug.Log (string.Format("Smoothly sidestepped it! Health still {0}", this.health));
 		} else {
+			this.health -= hazardAttack;
 			Debug.Log (string.Format("Stumbled into the {0} - health fell to {1}", this.hazardName, this.health));
+
+			if (health <= 0) {
+				Die ();
+			}
 		}
 
 		// store skills gained
 		this.hazardPoints += this.hazardAttack;
-		// reset treasure
+		// reset hazard
 		this.hazardName = "";
 		this.hazardAttack = 0;
 		this.isEvading = false;

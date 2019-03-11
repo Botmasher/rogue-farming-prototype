@@ -59,59 +59,11 @@ public class Plot : MonoBehaviour {
 		// set current sprite
 		//GetComponent<SpriteRenderer> ().sprite = sprites[0];
 
-		// NOTE demo setting rogue and castle from the getgo 
-		//this.SetCaslte (castle);
-		//this.SetRogue (rogue);
-		if (castle) castle.ResetCastle ();
+		// NOTE: set at the beginning for early demo before plots built out
+		// if (castle) castle.ResetCastle ();
 
 		// cyclical behavior for day manager
 		growthAction = () => GrowRogue ();
-	}
-
-	void Update () {
-
-		/*  Run rogue through castle */
-
-		// TODO: simplify and abstract rogue castle runthrough
-		// check if rogue is free for tasks
-//		if (rogue && !rogue.IsBusy () && cooldownTimer <= 0f) {
-//			// keep iterating through levels of obstacles until castle sequence done
-//			if (currentLevel < castle.levelObstacles.Count) {
-//				if (obstacleIndex >= castle.levelObstacles [currentLevel].Count) {
-//					currentLevel++;
-//					obstacleIndex = 0;
-//				}
-////				if (currentLevel >= castle.levelObstacles.Count) {
-////					this.EndCastle ();
-////				}
-//				currentObstacle = castle.levelObstacles [currentLevel][obstacleIndex];
-//				obstacleIndex++;
-//			} else {
-//				currentObstacle = "None";
-//				//this.EndCastle ();
-//			}
-//
-//			// task rogue to interact with obstacle as expected
-//			if (castle.enemies.ContainsKey (currentObstacle)) {
-//				// get rogue to fight enemy
-//				rogue.AssignEnemy (currentObstacle, castle.enemies[currentObstacle]);
-//			} else if (castle.treasures.ContainsKey (currentObstacle)) {
-//				// get rogue to open treasure
-//				rogue.AssignTreasure (currentObstacle, castle.treasures[currentObstacle]);
-//			} else if (castle.hazards.ContainsKey (currentObstacle)) {
-//				// get rogue to evade hazard
-//				rogue.AssignHazard (currentObstacle, castle.hazards[currentObstacle]);
-//			} else {
-//				// unknown obstacle
-//				Debug.Log(string.Format("Castle does not seem to contain any obstacle named {0}", currentObstacle));
-//			}
-//			cooldownTimer = 0.1f;
-//		}
-//
-//		if (cooldownTimer > 0f) {
-//			cooldownTimer -= Time.deltaTime;
-//		}
-
 	}
 
 	// TODO: have rogue run through obstacles each day - see Update
@@ -127,6 +79,9 @@ public class Plot : MonoBehaviour {
 	 * HARVESTING
 	 * - pop rogue back out into the world (not directly into grim inventory)
 	 */
+
+	// TODO: 
+
 	void GrowRogue () {
 		// increment growth stage
 		if (growthStageCurrent >= growthStageMax) {
@@ -137,12 +92,16 @@ public class Plot : MonoBehaviour {
 		growthStageCurrent++;
 
 		// fetch current castle level info then advance castle level
-		List<string> obstacleIds = castle.RunLevel();
+		List<CastleObstacle> obstacles = castle.RunLevel();
 
 		// send rogue obstacles to deal with 
 		// TODO: feed rogue a dataful obstacle object living under the castle instead of a string it has to check
-		foreach (string obstacleId in obstacleIds) {
-			rogue.FeedObstacle (new GameObject());
+		if (rogue.isAlive) {
+			foreach (CastleObstacle obstacle in obstacles) {
+				rogue.FeedObstacle (obstacle);
+			}
+		} else {
+			Debug.Log ("Planted rogue named '" + rogue.gameObject.name + "' has died!");
 		}
 
 		// TODO: track rogue progress and prep for ui display readout
@@ -178,6 +137,9 @@ public class Plot : MonoBehaviour {
 
 			// set up day callback to start cycling growth
 			plantedHour = DayManager.Day.EveryDay (growthAction);
+
+			// make sure rogue is alive for obstacle progression
+			rogue.Live();
 
 			// initialize obstacles ("castle") to run rogue through
 			castle.ResetCastle ();
