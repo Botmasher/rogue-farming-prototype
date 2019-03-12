@@ -76,7 +76,7 @@ public class Castle : MonoBehaviour {
 	};
 
 	// log entire sequence of obstacles generated for current castle run
-	void PrintCastle () {
+	void LogCastle () {
 		// title for output string to be logged
 		string o = " -- Castle " + this.name + " Obstacles -- \n";
 
@@ -167,6 +167,11 @@ public class Castle : MonoBehaviour {
 
 		// add obstacle a bounded random number of times
 		int times = Random.Range(minTimes, maxTimes + 1);
+
+		// back out if didn't roll a positive integer
+		if (times < 1) return;
+
+		// spawn and add obstacle as many times as rng rolled
 		for (int i=0; i < times; i++) {
 			// spawn the obstacle within this castle
 			CastleObstacle obstacle = Instantiate (castleObstacle, this.transform).GetComponent<CastleObstacle> ();
@@ -214,10 +219,9 @@ public class Castle : MonoBehaviour {
 		this.AddRandomTimes (level1, "hazard", "big bottomless pit", 1, 2);
 
 		// add one of two minibosses
-		this.AddRandomTimes (level1, "miniBoss", "bull miniboss", 0, 1);
-		if (level1[level1.Count-1].obstacleName != "bull miniboss") {
-			AddRandomTimes (level1, "miniBoss", "snake miniboss", 1, 1);
-		}
+		List<string> miniBosses = new List<string>() { "bull miniboss",  "snake miniboss" };
+		string bossName = miniBosses [Random.Range (0, miniBosses.Count)];
+		AddRandomTimes (level1, "miniBoss", bossName, 1, 1);
 
 		// shuffle the level
 		this.ShuffleList (level1);
@@ -252,10 +256,9 @@ public class Castle : MonoBehaviour {
 		this.AddRandomTimes (level2, "hazard", "poison trap", 0, 2);
 		this.AddRandomTimes (level2, "hazard", "death trap", 0, 0);
 		// miniboss
-		this.AddRandomTimes (level2, "miniBoss", "knight miniboss", 0, 1);
-		if (level2[level2.Count-1].obstacleName != "knight miniboss") {
-			AddRandomTimes (level2, "miniBoss", "shapeshifter miniboss", 1, 1);
-		}
+		miniBosses = new List<string>() { "shapeshifter miniboss",  "knight miniboss" };
+		bossName = miniBosses [Random.Range (0, miniBosses.Count)];
+		AddRandomTimes (level2, "miniBoss", bossName, 1, 1);
 
 		// shuffle the non-boss
 		this.ShuffleList (level2);
@@ -290,10 +293,9 @@ public class Castle : MonoBehaviour {
 		this.AddRandomTimes (level3, "hazard", "poison trap", 1, 3);
 		this.AddRandomTimes (level3, "hazard", "death trap", 0, 1);
 		// miniboss
-		this.AddRandomTimes (level3, "miniBoss", "legendary miniboss", 0, 1);
-		if (level3[level3.Count-1].obstacleName != "legendary miniboss") {
-			AddRandomTimes (level3, "miniBoss", "shapeshifter miniboss", 1, 1);
-		}
+		miniBosses = new List<string>() { "legendary miniboss",  "shapeshifter miniboss" };
+		bossName = miniBosses [Random.Range (0, miniBosses.Count)];
+		AddRandomTimes (level3, "miniBoss", bossName, 1, 1);
 
 		// shuffle the non-boss
 		this.ShuffleList (level3);
@@ -308,13 +310,9 @@ public class Castle : MonoBehaviour {
 		List<CastleObstacle> level4 = new List<CastleObstacle> ();
 
 		// add just one of the final bosses
-		AddRandomTimes (level4, "finalBoss", "Fellafunt the Wise", 0, 1);
-		if (level4.Count < 1) {
-			AddRandomTimes (level4, "finalBoss", "Saggawar the Cunning", 0, 1);
-			if (level4.Count < 1) {
-				AddRandomTimes (level4, "finalBoss", "Shinosaur the Strong", 1, 1);
-			}
-		}
+		List<string> finalBosses = new List<string>(obstacles["finalBoss"].Keys);
+		bossName = finalBosses [Random.Range (0, finalBosses.Count)];
+		AddRandomTimes (level4, "finalBoss", bossName, 1, 1);
 
 		/* New Level List */
 		// remove past levels and add new ones
@@ -325,7 +323,7 @@ public class Castle : MonoBehaviour {
 		levelObstacles.Add (level4);
 
 		// Log the obstacles in each level
-		this.PrintCastle ();
+		this.LogCastle ();
 
 		return;
 	}

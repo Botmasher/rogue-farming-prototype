@@ -50,6 +50,48 @@ public class Plot : MonoBehaviour {
 	System.Action growthAction;
 
 	void Start () {
+
+		/* DELETE */
+		// rng tests for populating within castle
+		int numTimes = 0;
+
+//		numTimes = Random.Range(0, 0 + 1);
+//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range(0, 0 + 1);
+//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range(0, 0 + 1);
+//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range(0, 0 + 1);
+//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
+//
+//		numTimes = Random.Range(1, 3 + 1);
+//		Debug.Log ("Tried to add between 1 and 3 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range(1, 3 + 1);
+//		Debug.Log ("Tried to add between 1 and 3 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range(1, 3 + 1);
+//		Debug.Log ("Tried to add between 1 and 3 times. Added " + numTimes + " times.");
+//
+//		numTimes = Random.Range (0, 5 + 1);
+//		Debug.Log ("Tried to add between 0 and 5 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range (0, 5 + 1);
+//		Debug.Log ("Tried to add between 0 and 5 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range (0, 5 + 1);
+//		Debug.Log ("Tried to add between 0 and 5 times. Added " + numTimes + " times.");
+//
+//		numTimes = Random.Range (0, 1 + 1);
+//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range (0, 1 + 1);
+//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range (0, 1 + 1);
+//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range (0, 1 + 1);
+//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
+//		numTimes = Random.Range (0, 1 + 1);
+//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
+
+		/* END DELETE */
+
+
 		// add all sprites to the list
 		sprites.Add (spriteEmpty);
 		sprites.Add (spritePlanted);
