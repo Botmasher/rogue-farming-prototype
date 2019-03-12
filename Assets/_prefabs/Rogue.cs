@@ -17,8 +17,13 @@ public class Rogue : MonoBehaviour {
 	// - lockout period prohibited clean manual playthrough
 
 	// main stat for rogue life - deplete this to end planting
-	int health = 50;
+	int health = 50;		// updated while adventuring
+	int maxHealth = 50; 	// intended to be read when brought back to life - ? updated through stats or items
 	public bool isAlive = true;
+
+	// check for currently acting
+	// NOTE: if updated after frame, cannot do async obstacles - consider coroutine for life/death actions like taking damage
+	public bool isBusy = false;
 
 	// weaponry and armor storage
 	public Dictionary <string, GameObject> equipment = new Dictionary<string, GameObject> () {
@@ -36,20 +41,6 @@ public class Rogue : MonoBehaviour {
 	int enemyPoints = 0;
 	int treasurePoints = 0;
 	int hazardPoints = 0;
-
-	// flag when available for obstacle assignment
-	bool isFighting = false;
-	bool isEvading = false;
-	bool isThieving = false;
-	// stats for the assigned obstacle
-	string enemyName = "";
-	string enemyType = "";
-	int enemyAttack = 0;
-	int enemyHealth = 0;
-	string treasureName = "";
-	int treasureTrickiness = 0;
-	string hazardName = "";
-	int hazardAttack = 0;
 
 	// simulate time-taking countdown for rogue actions
 	int actionCounter = 0;
@@ -73,66 +64,26 @@ public class Rogue : MonoBehaviour {
 		if (armorEquipment != null) equipment ["armor"] = armorEquipment;
 	}
 
-	void Update() {
-		// assess health
-		if (this.health <= 0) {
-			this.health = 0;
-			this.isAlive = false;
-			Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
-		}
-
-		// TODO: remove this and automate each rogue's behaviors inside one castle
-		// take actions over time
-		if (this.actionCounter <= 0) {
-			if (this.isFighting && Input.GetKeyDown (KeyCode.F)) {
-				this.FightEnemy ();
-				this.actionCounter = 160;
-			} else if (this.isEvading && Input.GetKeyDown (KeyCode.E)) {
-				this.EvadeHazard ();
-				this.actionCounter = 160;
-			} else if (this.isThieving && Input.GetKeyDown (KeyCode.O)) {
-				this.OpenTreasure ();
-				this.actionCounter = 160;
-			} else if (!this.isAlive && Input.GetKeyDown (KeyCode.Q)) {
-				Application.Quit ();
-			} else {
-			}
-		}
-
-		if (this.actionCounter > 0) {
-			this.actionCounter--;
-		}
-	}
-
 	// TODO: make obstacles GameObjects to combine features instead of balancing dictionaries and lists
 	public bool FeedObstacle (CastleObstacle obstacle) {
-		
-//		// async timing - now fed sync on growth cycle!
-//		// currently handling another obstacle - do not accept or advance through this obstacle
-//		if (IsBusy()) {
-//			return false;
-//		}
 
 		// TODO: just assign the obstacle, even let it communicate back to call the right methods in rogue
 
 		// assign and react to the obstacle depending on its type
 		switch (obstacle.obstacleType) {
 			case "hazard":
-				AssignHazard (obstacle.obstacleName, obstacle.obstacleValue);
-				EvadeHazard ();
+				EvadeHazard (obstacle);
 				break;
 
 			case "enemy":
 			case "boss":
 			case "miniBoss":
 			case "finalBoss":
-				AssignEnemy (obstacle.obstacleName, obstacle.obstacleType, obstacle.obstacleValue);
-				FightEnemy ();
+				FightEnemy (obstacle);
 				break;
 
 			case "treasure":
-				AssignTreasure (obstacle.obstacleName, obstacle.obstacleValue);
-				OpenTreasure ();
+				OpenTreasure (obstacle);
 				break;
 
 			default:
@@ -140,34 +91,6 @@ public class Rogue : MonoBehaviour {
 		}
 
 		return true;
-	}
-
-	// external check if available for assignment
-	public bool IsBusy () {
-		return (this.isFighting || this.isEvading || this.isThieving);
-	}
-
-	public void AssignEnemy (string enemyName, string enemyType, int strength) {
-		this.enemyName = enemyName;
-		this.enemyType = enemyType;
-		this.enemyAttack = strength;
-		this.enemyHealth = strength;
-		this.isFighting = true;
-		Debug.Log (string.Format("Rogue {0} is taking up arms against a {1}", this.name, enemyName));
-	}
-
-	public void AssignTreasure (string treasureName, int trickiness) {
-		this.treasureName = treasureName;
-		this.treasureTrickiness = trickiness;
-		this.isThieving = true;
-		Debug.Log (string.Format("Rogue {0} is struggling to open a {1}", this.name, treasureName));
-	}
-
-	public void AssignHazard (string hazardName, int attack) {
-		this.hazardName = hazardName;
-		this.hazardAttack = attack;
-		this.isEvading = true;
-		Debug.Log (string.Format("Rogue {0} is craftily evading a {1}", this.name, hazardName));
 	}
 
 	// attach item to rogue equipment spot - created for Grim inventory management
@@ -212,119 +135,139 @@ public class Rogue : MonoBehaviour {
 		return equipment ["armor"];
 	}
 
+	// 
 	public void Live() {
 		isAlive = true;
+		health = maxHealth;
 	}
 	public void Die() {
 		isAlive = false;
+		health = 0;
+		Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
 	}
 
-	/* Internal methods for adventuring through generated obstacles */
+	/* Adventuring through generated obstacles */
 
-	void FightEnemy() {
-		// roll for a zero-to-one plus luck chance
+	void FightEnemy(CastleObstacle enemy) {
+		// reference relevant values from enemy
+		string enemyName = enemy.obstacleName;
+		string enemyType = enemy.obstacleType;
+		int enemyHealth = enemy.obstacleValue;
+		int enemyAttack = enemy.obstacleValue;
+
+		Debug.Log (string.Format("Rogue {0} is taking up arms against a {1}", this.name, enemyName));
+
+		// roll for a zero-to-one plus luck chance for immediate evasion
 		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
 
-		if (rollPlusLuck > 0.8f) {
+		// attempt to run away from a low-level enemy
+		if ((enemyType == "enemy" || enemyType == "miniBoss") && rollPlusLuck > 0.8f) {
 			Debug.Log (string.Format("{0} ran away from a {1}", this.name, enemyName));
-			this.DefeatEnemy();
+			this.DefeatEnemy(enemyAttack);
 			return;
 		}
 
+		// play through encounter taking turns fighting and defending against the enemy
+		CycleAttackDefend (enemyName, enemyType, enemyAttack, enemyHealth);
+	}
+
+	// handle enemy encounter until encounter resolves (rogue kills/evades enemy, enemy kills rogue)
+	void CycleAttackDefend (string enemyName, string enemyType, int enemyAttack, int enemyHealth) {
 		// roll again so not all events in a single turn are lucky or unlucky
-		rollPlusLuck = Random.Range (0f, 1f + this.luck);
+		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
 
 		// attack enemy - leave a small chance to miss
 		if (rollPlusLuck > 0.08f) {
-			this.enemyHealth -= this.attack;
-			Debug.Log (string.Format("Did {0} damage - enemy {1}/{2}", this.attack, this.enemyHealth, this.enemyAttack));
+			enemyHealth -= this.attack;
+			Debug.Log (string.Format("Did {0} damage to enemy {1} - {2}/{3}", this.attack, enemyName, enemyHealth, enemyAttack));
 		} else {
-			Debug.Log (string.Format("Missed - enemy {0}/{1}", this.enemyHealth, this.enemyAttack));
+			Debug.Log (string.Format("Missed enemy {0} - {1}/{2}", enemyName, enemyHealth, enemyAttack));
 		}
 
 		// finish off dead enemy
-		if (this.enemyHealth <= 0) {
+		if (enemyHealth <= 0) {
 			Debug.Log (string.Format("{0} defeated a {1}!", this.name, enemyName));
-			this.DefeatEnemy ();
+			this.DefeatEnemy (enemyAttack);
 			return;
 		}
 
 		// enemy attacks back - leave a small chance to evade non-bosses
 		if (rollPlusLuck > 0.1f || enemyType != "enemy") {
-			int attackStrength = Mathf.RoundToInt(this.enemyAttack - (this.enemyAttack * this.luck) - this.armor);
+			int attackStrength = Mathf.RoundToInt(enemyAttack - (enemyAttack * this.luck) - this.armor);
 			this.health -= attackStrength;
-			// chip away at the armor over time instead of knocking it all off
+			// chip away at rogue armor over time instead of knocking it all off
 			this.armor = Mathf.Clamp(
 				Mathf.RoundToInt(this.armor + (this.armor * this.luck) - (attackStrength * 0.1f)),
 				0,
 				this.armor
 			);
 			Debug.Log (string.Format("Enemy attacked - rogue health dropped to {0}", this.health));
-
-			if (health <= 0) {
-				Die ();
-			}
-
 		} else {
 			Debug.Log (string.Format("Evaded enemy attack - rogue health remains at {0}", this.health));
 		}
+
+		if (this.health <= 0) {
+			Die ();
+		}
+
+		// take another turn if enemy still alive
+		if (enemyHealth > 0 && this.health > 0) {
+			Debug.Log ("Taking another attack-defend turn against enemy " + enemyName);
+			CycleAttackDefend (enemyName, enemyType, enemyAttack, enemyHealth);
+		}
+		return;
 	}
 
 	// unassign and reset currently confronted enemy
-	void DefeatEnemy () {
+	void DefeatEnemy (int enemyPoints) {
 		// store skills gained
-		this.enemyPoints += this.enemyAttack;
-		// reset enemy
-		this.enemyName = "";
-		this.enemyAttack = 0;
-		this.enemyHealth = 0;
-		this.isFighting = false;
+		this.enemyPoints += enemyPoints;
 	}
 
 	// unassign and reset treasure being opened
-	void OpenTreasure () {
+	void OpenTreasure (CastleObstacle treasure) {
+		// peel off relevant treasure settings
+		string treasureName = treasure.obstacleName;
+		int treasureTrickiness = treasure.obstacleValue;
+
+		Debug.Log (string.Format("Rogue {0} is struggling to open a {1}", this.name, treasureName));
+
 		// roll for a zero-to-one plus luck chance
 		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
 
 		// be sly or lucky enough to open
-		if ((this.thievery >= this.treasureTrickiness) || (rollPlusLuck > (0.85f + (this.treasureTrickiness/100)))) {
-			this.treasure += this.treasureTrickiness;
-			Debug.Log (string.Format ("Pried it! The {0} gold ups rogue treasure to {1}", this.treasureTrickiness, this.treasure));
+		if ((this.thievery >= treasureTrickiness) || (rollPlusLuck > (0.85f + (treasureTrickiness/100)))) {
+			this.treasure += treasureTrickiness;
+			Debug.Log (string.Format ("Pried it! The {0} gold ups rogue treasure to {1}", treasureTrickiness, this.treasure));
 		} else {
 			Debug.Log ("Failed to crack it open. Not yet thieverious enough for its secrets.");
 		}
 
 		// store loot and skills gained
-		this.treasurePoints += this.treasureTrickiness;
-		this.treasure += this.treasureTrickiness;
-		// reset treasure
-		this.treasureName = "";
-		this.treasureTrickiness = 0;
-		this.isThieving = false;
+		this.treasurePoints += treasureTrickiness;
+		this.treasure += treasureTrickiness;
 	}
 
 	// unassign and reset hazard facing rogue
-	void EvadeHazard () {
+	void EvadeHazard (CastleObstacle hazard) {
+		// peel off relevant hazard values
+		string hazardName = hazard.obstacleName;
+		int hazardAttack = hazard.obstacleValue;
+		
+		Debug.Log (string.Format("Rogue {0} is craftily evading a {1}", this.name, hazardName));
+
 		// roll for a zero-to-one plus luck chance
 		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
 
 		// be agile or lucky enough to evade
-		if ((this.agility >= this.hazardAttack) || (rollPlusLuck > (0.3f + (this.hazardAttack/100)))) {
+		if ((this.agility >= hazardAttack) || (rollPlusLuck > (0.3f + (hazardAttack/100)))) {
 			Debug.Log (string.Format("Smoothly sidestepped it! Health still {0}", this.health));
 		} else {
 			this.health -= hazardAttack;
-			Debug.Log (string.Format("Stumbled into the {0} - health fell to {1}", this.hazardName, this.health));
-
-			if (health <= 0) {
-				Die ();
-			}
+			Debug.Log (string.Format("Stumbled into the {0} - health fell to {1}", hazardName, this.health));
 		}
 
 		// store skills gained
-		this.hazardPoints += this.hazardAttack;
-		// reset hazard
-		this.hazardName = "";
-		this.hazardAttack = 0;
-		this.isEvading = false;
+		this.hazardPoints += hazardAttack;
 	}
 }

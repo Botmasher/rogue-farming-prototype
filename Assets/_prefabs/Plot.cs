@@ -94,13 +94,17 @@ public class Plot : MonoBehaviour {
 		// fetch current castle level info then advance castle level
 		List<CastleObstacle> obstacles = castle.RunLevel();
 
-		// send rogue obstacles to deal with 
-		// TODO: feed rogue a dataful obstacle object living under the castle instead of a string it has to check
-		if (rogue.isAlive) {
-			foreach (CastleObstacle obstacle in obstacles) {
+		// send rogue obstacles to deal with
+		Debug.Log ("Growing the planted rogue - alive and ready for another stage!");
+		foreach (CastleObstacle obstacle in obstacles) {
+			if (rogue.isAlive) {
 				rogue.FeedObstacle (obstacle);
 			}
-		} else {
+		}
+
+		// TODO: finish growth and set to harvest, including rogue having finished castle or died in castle
+		//
+		if (!rogue.isAlive) {
 			Debug.Log ("Planted rogue named '" + rogue.gameObject.name + "' has died!");
 		}
 
