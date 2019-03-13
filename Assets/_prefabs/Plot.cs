@@ -4,14 +4,11 @@ using UnityEngine;
 
 public class Plot : MonoBehaviour {
 
-	// TODO methods for adding or updating a rogue and a castle
-
 	// prefab with script for castle and rogue instantiation and reference
 	public Rogue rogue;		// behavior for the rogue planted in this plot
 	public Castle castle; 	// behavior for the castle a rogue fights through if planted in this plot
 
-	// TODO make a listener class for queuing up callbacks on call, then send this one for "onLevelProgress" rogueId, castleId
-
+	// sprites for various growth and interaction states
 	public Sprite spriteEmpty;
 	public Sprite spritePlanted;
 	public Sprite spriteGrowing;
@@ -45,53 +42,14 @@ public class Plot : MonoBehaviour {
 		}
 	}
 
+	// harvest check
+	bool isHarvestable = false;
+
 	// storing actions and timing for communicating with day manager
 	int plantedHour = -1;
 	System.Action growthAction;
 
 	void Start () {
-
-		/* DELETE */
-		// rng tests for populating within castle
-		int numTimes = 0;
-
-//		numTimes = Random.Range(0, 0 + 1);
-//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range(0, 0 + 1);
-//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range(0, 0 + 1);
-//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range(0, 0 + 1);
-//		Debug.Log ("Tried to add between 0 and 0 times. Added " + numTimes + " times.");
-//
-//		numTimes = Random.Range(1, 3 + 1);
-//		Debug.Log ("Tried to add between 1 and 3 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range(1, 3 + 1);
-//		Debug.Log ("Tried to add between 1 and 3 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range(1, 3 + 1);
-//		Debug.Log ("Tried to add between 1 and 3 times. Added " + numTimes + " times.");
-//
-//		numTimes = Random.Range (0, 5 + 1);
-//		Debug.Log ("Tried to add between 0 and 5 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range (0, 5 + 1);
-//		Debug.Log ("Tried to add between 0 and 5 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range (0, 5 + 1);
-//		Debug.Log ("Tried to add between 0 and 5 times. Added " + numTimes + " times.");
-//
-//		numTimes = Random.Range (0, 1 + 1);
-//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range (0, 1 + 1);
-//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range (0, 1 + 1);
-//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range (0, 1 + 1);
-//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
-//		numTimes = Random.Range (0, 1 + 1);
-//		Debug.Log ("Tried to add between 0 and 1 times. Added " + numTimes + " times.");
-
-		/* END DELETE */
-
-
 		// add all sprites to the list
 		sprites.Add (spriteEmpty);
 		sprites.Add (spritePlanted);
@@ -122,11 +80,17 @@ public class Plot : MonoBehaviour {
 	 * - pop rogue back out into the world (not directly into grim inventory)
 	 */
 
-	// TODO: 
-
 	void GrowRogue () {
-		// increment growth stage
-		if (growthStageCurrent >= growthStageMax) {
+		// already set to be harvested - skip growing
+		if (isHarvestable) {
+			Debug.Log ("Rogue is now harvestable");
+			return;
+		}
+
+		// check if already done growing - enable harvestability
+		if (growthStageCurrent >= growthStageMax || !rogue.isAlive) {
+			isHarvestable = true;
+			Debug.Log ("Setting nonalive/finished rogue to be harvestable!");
 			return;
 		}
 
@@ -141,6 +105,8 @@ public class Plot : MonoBehaviour {
 		foreach (CastleObstacle obstacle in obstacles) {
 			if (rogue.isAlive) {
 				rogue.FeedObstacle (obstacle);
+			} else {
+				
 			}
 		}
 
@@ -167,11 +133,19 @@ public class Plot : MonoBehaviour {
 		rogue.transform.SetParent (this.transform);
 		rogue.gameObject.SetActive (false);
 	}
+	// unassign and return unparented, reactivated rogue
 	GameObject UnsetRogue () {
-		GameObject oldRogue = rogue.gameObject;
-		rogue = null;
+		// reactivate rogue in world
 		rogue.transform.SetParent (null);
 		rogue.gameObject.SetActive (true);
+
+		// save the rogue to return
+		GameObject oldRogue = rogue.gameObject;
+
+		// unattach rogue from this plot
+		rogue = null;
+
+		// return the rogue
 		return oldRogue;
 	}
 
@@ -190,6 +164,7 @@ public class Plot : MonoBehaviour {
 			// initialize obstacles ("castle") to run rogue through
 			castle.ResetCastle ();
 
+			isEmpty = false;
 			Debug.Log ("Planted rogue in Plot");
 
 			return true;
@@ -200,15 +175,23 @@ public class Plot : MonoBehaviour {
 	// retrieve rogue from plot and reset growth
 	public GameObject HarvestRogue () {
 		// planted rogue ready for harvest
-		if (rogue != null && growthStageCurrent == growthStageMax) {
+		if (isHarvestable) {
+
+			Debug.Log("Trying to harvest rogue " + rogue.name + " with health " + rogue.health);
+
 			// reset planted rogue and castle scheduling
 			growthStageCurrent = 0;
 			DayManager.Day.NotAt (plantedHour, growthAction);
 			plantedHour = -1;
 
+			// reset plot harvestability
+			isHarvestable = false;
+			isEmpty = true;
+
 			// hand rogue over to harvester
 			return UnsetRogue ();
 		}
+
 		// no grown rogue to harvest
 		return null;
 	}

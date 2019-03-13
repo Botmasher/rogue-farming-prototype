@@ -17,7 +17,7 @@ public class Rogue : MonoBehaviour {
 	// - lockout period prohibited clean manual playthrough
 
 	// main stat for rogue life - deplete this to end planting
-	int health = 50;		// updated while adventuring
+	public int health = 50;		// updated while adventuring
 	int maxHealth = 50; 	// intended to be read when brought back to life - ? updated through stats or items
 	public bool isAlive = true;
 

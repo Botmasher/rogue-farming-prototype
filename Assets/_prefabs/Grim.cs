@@ -129,15 +129,6 @@ public class Grim : MonoBehaviour {
 
 	/* Interact with world */
 
-	// take farm action on swipe
-	void SwipeFarm(GameObject farmPlot) {
-		Debug.Log (string.Format("Successfully swiped a farm plot named {0}", farmPlot.name));
-
-		// TODO branches for different growth or emptiness of plot
-		Plot plotBehavior = farmPlot.GetComponent<Plot> ();
-		// if/case ...
-	}
-
 	// grab inventory item on use
 	void PickUp (GameObject pickupItem) {
 		// physically pick up item and attach it here
@@ -210,17 +201,22 @@ public class Grim : MonoBehaviour {
 	void HandleSwipe () {
 		// interact if standing on farm plot
 		GameObject groundTile = GetGroundObject();
-		if (groundTile != null) {
-			switch (groundTile.tag) {
-				// decide farm behavior based on plot status
-				case ("FarmPlot"):
-					SwipeFarm (groundTile);
-					break;
-				// ignore raycasted object
-				default:
-					break;
+
+		// attempt to harvest a plot
+		if (groundTile != null && groundTile.tag == "FarmPlot") {
+			Plot farmPlot = groundTile.GetComponent<Plot> ();
+			GameObject harvestedRogue = farmPlot.HarvestRogue ();
+
+			Debug.Log (string.Format("Successfully swiped a farm plot named {0}", farmPlot.name));
+
+			// grab rogue as current item and try adding to inventory
+			if (harvestedRogue != null) {
+				Debug.Log ("Picking up and trying to store harvested rogue");
+				PickUp (harvestedRogue);
 			}
 		}
+
+		// TODO: also take a swipe at enemy if one present
 	}
 
 	// pickup touched objects automatically
