@@ -8,6 +8,7 @@ TagManager:
   - InterfaceSlot
   - InterfaceItem
   - Pickup
+  - Epitaph
   layers:
   - Default
   - TransparentFX

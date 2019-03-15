@@ -21,6 +21,10 @@ public class Rogue : MonoBehaviour {
 	int maxHealth = 50; 	// intended to be read when brought back to life - ? updated through stats or items
 	public bool isAlive = true;
 
+	// note which object killed rogue this run - useful for epitaph ui
+	public string deathDealerName;
+	public string deathDealerType;
+
 	// check for currently acting
 	// NOTE: if updated after frame, cannot do async obstacles - consider coroutine for life/death actions like taking damage
 	public bool isBusy = false;
@@ -135,14 +139,18 @@ public class Rogue : MonoBehaviour {
 		return equipment ["armor"];
 	}
 
-	// 
+	// toggle health, life checks and epitaph ui info
 	public void Live() {
 		isAlive = true;
+		deathDealerName = "";
+		deathDealerType = "";
 		health = maxHealth;
 	}
-	public void Die() {
+	public void Die(string killerName, string killerType) {
 		isAlive = false;
 		health = 0;
+		deathDealerName = killerName;
+		deathDealerType = killerType;
 		Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
 	}
 
@@ -207,7 +215,7 @@ public class Rogue : MonoBehaviour {
 		}
 
 		if (this.health <= 0) {
-			Die ();
+			Die (enemyName, enemyType);
 		}
 
 		// take another turn if enemy still alive
@@ -265,6 +273,11 @@ public class Rogue : MonoBehaviour {
 		} else {
 			this.health -= hazardAttack;
 			Debug.Log (string.Format("Stumbled into the {0} - health fell to {1}", hazardName, this.health));
+		}
+
+		if (this.health <= 0) {
+			Die (hazardName, hazard.obstacleType);
+			return;
 		}
 
 		// store skills gained

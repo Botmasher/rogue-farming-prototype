@@ -52,4 +52,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemLimit: 0
-  inventoryUI: {fileID: 0}
+  inventoryUI: {fileID: 114096418441698636, guid: c0f6d5a0bf1e747118497242f5ab1b7a,
+    type: 2}

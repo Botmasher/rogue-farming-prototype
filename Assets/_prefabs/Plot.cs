@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Plot : MonoBehaviour {
 
@@ -14,6 +15,9 @@ public class Plot : MonoBehaviour {
 	public Sprite spriteGrowing;
 	public Sprite spriteDone;
 	public Sprite spriteCracked;
+
+	// epitaph ui for displaying plot status
+	GameObject epitaph;
 
 	// gather assigned sprite images into indexed grow sequence
 	List<Sprite> sprites = new List<Sprite>();
@@ -59,12 +63,13 @@ public class Plot : MonoBehaviour {
 		// set current sprite
 		//GetComponent<SpriteRenderer> ().sprite = sprites[0];
 
-		// NOTE: set at the beginning for early demo before plots built out
-		// if (castle) castle.ResetCastle ();
+		// get epitaph ui reference
+		epitaph = GameObject.FindGameObjectWithTag("Epitaph");
 
 		// cyclical behavior for day manager
 		growthAction = () => GrowRogue ();
 	}
+
 
 	/* Phases
 	 * 
@@ -202,15 +207,41 @@ public class Plot : MonoBehaviour {
 		return false;
 	}
 
-	// NOTE: first-pass rogue demo method for ending game once rogue runs through castle
-//	public void EndCastle () {
-//		Debug.Log ("Congratulations! Your rogue finished the castle completely and utterly!");
-//		Application.Quit ();
-//	}
 
-	// TODO: just keep one castle through inspector/prefab for whenever plot instantiated
-//	public void SetCaslte(Castle castle) {
-//		this.castle = castle;
-//	}
+	/* Show and hide epitaph with rogue run stats  */
+
+	void OnTriggerExit(Collider other) {
+		if (other.gameObject.tag == "Player") {
+			epitaph.GetComponent<Epitaph> ().Hide ();
+		}
+	}
+
+	void OnTriggerEnter(Collider other) {
+		if (other.gameObject.tag == "Player" && !isEmpty) {
+
+			epitaph.GetComponent<Epitaph> ().Show ();
+
+			string epitaphTitle = rogue.name;
+			string epitaphBody = "";
+
+			// text for a rogue after finished with a run
+			if (isHarvestable) {
+				epitaphBody += "perished\n";
+				epitaphBody += "at the hands of a \n" + rogue.deathDealerName.ToUpper() + "\n";
+				epitaphBody += "(some kind of " + rogue.deathDealerType.ToUpper() + ")";
+			}
+			// text for a rogue currently mid-run
+			else {
+				epitaphBody += GrowthStage > 0
+					? "facing level " + GrowthStage
+					: "setting out on an adventure"
+				;
+			}
+
+			// update ui with text
+			epitaph.GetComponentsInChildren<Text> () [0].text = epitaphTitle;
+			epitaph.GetComponentsInChildren<Text> () [1].text = epitaphBody;
+		}
+	}
 
 }
