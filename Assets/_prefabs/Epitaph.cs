@@ -5,13 +5,10 @@ using UnityEngine;
 public class Epitaph : MonoBehaviour {
 
 	// settings to move on or off screen
-	Vector3 showPosition;
-	Vector3 hidePosition;
-	Vector3 targetPosition;
-	public float speed = 2f;
-
-	// wedge time between plot calls to Show (walk on plot) and Hide (walking away)
-	bool isDelayingHide = false;
+	Vector3 showPosition; 		// onscreen position - read from starting position
+	Vector3 hidePosition;		// offscreen position
+	Vector3 targetPosition;		// container for animating between show or hide position
+	public float speed = 2f; 	// animation speed factor
 
 	void Start () {
 		// capture position of prefab object
@@ -19,8 +16,8 @@ public class Epitaph : MonoBehaviour {
 
 		// position offscreen
 		hidePosition = new Vector3 (
-			transform.position.x + 400f,
-			transform.position.y - 200f,
+			transform.position.x + 500f,
+			transform.position.y - 250f,
 			transform.position.z
 		);
 
@@ -44,24 +41,11 @@ public class Epitaph : MonoBehaviour {
 	// slide ui onscreen - called from plot
 	public void Show() {
 		targetPosition = showPosition;
-		StartCoroutine ("BufferShow");
 	}
 
 	// slide ui offscreen - called from plot
 	public void Hide() {
-		if (isDelayingHide) {
-			return;
-		}
 		targetPosition = hidePosition;
 	}
-
-	// delay ability to hide in order to transition gracefully between nearby stones
-	IEnumerator BufferShow () {
-		isDelayingHide = true;
-		yield return new WaitForSeconds (1f);
-		isDelayingHide = false;
-	}
-
-
 
 }

@@ -41,9 +41,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slot: {fileID: 114463576242910402, guid: bcdabb9784e0b4c728b50ceaca2b2d98, type: 2}
-  slotCount: 12
   slotStartPosition: {x: -970, y: 0, z: 0}
   slotSpacingHorizontal: 150
+  inventory: {fileID: 0}
   hidingSpeed: 4.5
 --- !u!114 &114592532657462808
 MonoBehaviour:

@@ -17,8 +17,8 @@ public class Rogue : MonoBehaviour {
 	// - lockout period prohibited clean manual playthrough
 
 	// main stat for rogue life - deplete this to end planting
-	public int health = 50;		// updated while adventuring
-	int maxHealth = 50; 	// intended to be read when brought back to life - ? updated through stats or items
+	public int health = 3;		// updated while adventuring
+	int maxHealth = 3; 			// intended to be read when brought back to life - ? updated through stats or items
 	public bool isAlive = true;
 
 	// note which object killed rogue this run - useful for epitaph ui
@@ -39,7 +39,7 @@ public class Rogue : MonoBehaviour {
 	public GameObject weaponEquipment;
 
 	// TODO: generate unique name for each rogue
-	public string name = "Asdf";
+	public string name;
 
 	// determine skills gained in castle for boosts
 	int enemyPoints = 0;
@@ -63,6 +63,10 @@ public class Rogue : MonoBehaviour {
 	public float luck = 0.05f;
 
 	void Start () {
+		// pick a new rogue name
+		// TODO: append generation on harvest / when calling Live()
+		name = "asdf";
+
 		// store starting equipment
 		if (weaponEquipment != null) equipment["weapon"] = weaponEquipment;
 		if (armorEquipment != null) equipment ["armor"] = armorEquipment;
@@ -140,7 +144,7 @@ public class Rogue : MonoBehaviour {
 	}
 
 	// toggle health, life checks and epitaph ui info
-	public void Live() {
+	public void Revive() {
 		isAlive = true;
 		deathDealerName = "";
 		deathDealerType = "";

@@ -166,7 +166,7 @@ public class Plot : MonoBehaviour {
 			plantedHour = DayManager.Day.EveryDay (growthAction);
 
 			// make sure rogue is alive for obstacle progression
-			rogue.Live();
+			rogue.Revive();
 
 			// initialize obstacles ("castle") to run rogue through
 			castle.ResetCastle ();
@@ -216,31 +216,38 @@ public class Plot : MonoBehaviour {
 		}
 	}
 
-	void OnTriggerEnter(Collider other) {
+	void OnTriggerStay(Collider other) {
 		if (other.gameObject.tag == "Player" && !isEmpty) {
 
 			epitaph.GetComponent<Epitaph> ().Show ();
 
-			string epitaphTitle = rogue.name;
-			string epitaphBody = "";
+			// fill and format title
+			string epitaphText = "<size=40><b>" + rogue.name + "</b></size>";
+			epitaphText += "\n<color=#aaaaaaff>______________</color>\n";
+
+			// fill and format text body
+			epitaphText += "<size=25>";
 
 			// text for a rogue after finished with a run
 			if (isHarvestable) {
-				epitaphBody += "perished\n";
-				epitaphBody += "at the hands of a \n" + rogue.deathDealerName.ToUpper() + "\n";
-				epitaphBody += "(some kind of " + rogue.deathDealerType.ToUpper() + ")";
+				epitaphText += "perished\n";
+				epitaphText += "<size=15>on <b>floor " + GrowthStage + "</b> ";
+				epitaphText += "at the hands of a</size>\n";
+				epitaphText += "<size=23><i>" + rogue.deathDealerName.ToUpper() + "</i></size>\n";
+				epitaphText += "<size=18>(some kind of <i>" + rogue.deathDealerType.ToUpper() + "</i>)</size>";
 			}
 			// text for a rogue currently mid-run
 			else {
-				epitaphBody += GrowthStage > 0
-					? "facing level " + GrowthStage
-					: "setting out on an adventure"
+				epitaphText += GrowthStage > 0
+					? "facing level <b>" + GrowthStage + "</b>"
+					: "<i>setting out on an adventure</i>"
 				;
 			}
 
+			epitaphText += "</size>";
+
 			// update ui with text
-			epitaph.GetComponentsInChildren<Text> () [0].text = epitaphTitle;
-			epitaph.GetComponentsInChildren<Text> () [1].text = epitaphBody;
+			epitaph.GetComponentInChildren<Text> ().text = epitaphText;
 		}
 	}
 

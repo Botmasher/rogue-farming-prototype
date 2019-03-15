@@ -25,6 +25,7 @@ public class InventoryInterface : MonoBehaviour {
 	bool isHidden = false; 				// toggle visibility
 	public float hidingSpeed = 3f; 		// speed factor for sliding inventory onscreen or offscreen
 	Vector3 backgroundTargetPosition; 	// for storing calculated target show or hide position
+	Vector3 inventoryStartingPosition; 	// store onscreen position for show/hide
 
 	// raycast interaction with inventory
 	GraphicRaycaster raycaster; 		// canvas ui raycaster
@@ -43,8 +44,10 @@ public class InventoryInterface : MonoBehaviour {
 		raycaster = GetComponentInParent <GraphicRaycaster>();
 		eventSystem = GetComponentInParent <EventSystem> ();
 
-		// store the script parent image interface component
+		// store image interface component and remember its starting position
 		background = this.GetComponent<RectTransform> ();
+		inventoryStartingPosition = background.anchoredPosition3D;
+		backgroundTargetPosition = inventoryStartingPosition;
 
 		// set up slot images to display visuals relating to Inventory list data
 		float slotPositionX; 	// temporarily hold incrementing slot horizontal positions
@@ -148,8 +151,8 @@ public class InventoryInterface : MonoBehaviour {
 			isHidden = !isHidden;
 			// set position to onscreen or offscreen
 			backgroundTargetPosition = isHidden
-				? new Vector3 (background.anchoredPosition3D.x, -200f, background.anchoredPosition3D.z)
-				: new Vector3 (background.anchoredPosition3D.x, 0f, background.anchoredPosition3D.z)
+				? new Vector3 (background.anchoredPosition3D.x, inventoryStartingPosition.y - 200, background.anchoredPosition3D.z)
+				: new Vector3 (background.anchoredPosition3D.x, inventoryStartingPosition.y, background.anchoredPosition3D.z)
 			;
 		}
 
@@ -170,9 +173,8 @@ public class InventoryInterface : MonoBehaviour {
 
 	}
 
+
 	/* Interact with individual ui slots */
-
-
 
 	// grab the index of the ui slot at raycasted mouse position
 	// adapted from https://docs.unity3d.com/ScriptReference/UI.GraphicRaycaster.Raycast.html
