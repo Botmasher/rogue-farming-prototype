@@ -371,10 +371,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9c437f325c9246ac9343a69c2c254a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 50
   isAlive: 1
+  isBusy: 0
   armorEquipment: {fileID: 1825969445}
   weaponEquipment: {fileID: 698719314}
   name: Asdf
+  armor: 1
+  thievery: 1
+  attack: 1
+  agility: 1
+  luck: 0.05
 --- !u!114 &231549968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -587,6 +594,8 @@ MonoBehaviour:
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level: 1
+  defense: 1
 --- !u!212 &311640706
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -766,6 +775,8 @@ MonoBehaviour:
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level: 1
+  damage: 1
 --- !u!212 &698719316
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -951,10 +962,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9c437f325c9246ac9343a69c2c254a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 50
   isAlive: 1
+  isBusy: 0
   armorEquipment: {fileID: 311640703}
   weaponEquipment: {fileID: 1219268612}
   name: Asdf
+  armor: 1
+  thievery: 1
+  attack: 1
+  agility: 1
+  luck: 0.05
 --- !u!1 &988125616
 GameObject:
   m_ObjectHideFlags: 0
@@ -1084,6 +1102,8 @@ MonoBehaviour:
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level: 1
+  damage: 1
 --- !u!212 &1219268615
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1375,6 +1395,8 @@ MonoBehaviour:
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level: 1
+  defense: 1
 --- !u!212 &1825969447
 SpriteRenderer:
   m_ObjectHideFlags: 0

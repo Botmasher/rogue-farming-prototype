@@ -80,7 +80,7 @@ public class InventoryInterface : MonoBehaviour {
 		// store current slot if dragging started and no other slot is being dragged
 		if (Input.GetButtonDown ("Select") && draggedSlot < 0) {
 			// store current pointed-to slot as the active slot
-			draggedSlot = RaycastSlot ();
+			draggedSlot = RaycastAgainstSlot ();
 
 			// hit a valid item slot
 			if (draggedSlot > -1) {
@@ -106,7 +106,7 @@ public class InventoryInterface : MonoBehaviour {
 			// TODO: update with actions to perform after dragged is dropped
 			// reset the position of the dragged slot
 			slotList [draggedSlot].transform.position = draggedPosition;
-			landedSlot = RaycastSlot ();
+			landedSlot = RaycastAgainstSlot ();
 
 			// if dragged lands somewhere:
 			// 	- determine if the item can attach to the other (if it's a Weapon or Armor for a Rogue)
@@ -172,9 +172,11 @@ public class InventoryInterface : MonoBehaviour {
 
 	/* Interact with individual ui slots */
 
+
+
 	// grab the index of the ui slot at raycasted mouse position
 	// adapted from https://docs.unity3d.com/ScriptReference/UI.GraphicRaycaster.Raycast.html
-	int RaycastSlot () {
+	int RaycastAgainstSlot () {
 		// track mouse position using event system
 		pointerEventData = new PointerEventData (eventSystem);
 		pointerEventData.position = Input.mousePosition;
@@ -182,7 +184,7 @@ public class InventoryInterface : MonoBehaviour {
 		List<RaycastResult> raycastResults = new List <RaycastResult> ();
 		// perform raycast and check all hit items
 		raycaster.Raycast (pointerEventData, raycastResults);
-		// identify pressed slot
+		// identify hit slot
 		foreach (RaycastResult raycastResult in raycastResults) {
 			if (raycastResult.gameObject.tag == "InterfaceSlot") {
 				// return the index of the hit ui slot

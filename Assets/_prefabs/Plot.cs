@@ -66,18 +66,20 @@ public class Plot : MonoBehaviour {
 		growthAction = () => GrowRogue ();
 	}
 
-	// TODO: have rogue run through obstacles each day - see Update
-	/*
+	/* Phases
+	 * 
 	 * PLANTING
 	 * - have grim pass rogue to plot on plant action
 	 * - parent rogue, make it invisible, not and store rogue beneath plot
+	 * 
 	 * GROWING
-	 * - have castle throw obstacles of certain types at rogue
-	 * - have rogue decide how to attempt those obstacles
-	 * - advance through one level each day until dying or finished
-	 * - consider: what should happen (storywise and growth/harvest) if rogue makes it all the way?
+	 * - castle throws obstacles of certain types at rogue
+	 * - rogue decides how to attempt those obstacles
+	 * - plot coordinates this, advancing through one level each day until rogue dies or finishes castle
+	 * 
 	 * HARVESTING
 	 * - pop rogue back out into the world (not directly into grim inventory)
+	 *
 	 */
 
 	void GrowRogue () {
@@ -173,7 +175,7 @@ public class Plot : MonoBehaviour {
 	}
 
 	// retrieve rogue from plot and reset growth
-	public GameObject HarvestRogue () {
+	public bool HarvestRogue () {
 		// planted rogue ready for harvest
 		if (isHarvestable) {
 
@@ -188,12 +190,16 @@ public class Plot : MonoBehaviour {
 			isHarvestable = false;
 			isEmpty = true;
 
-			// hand rogue over to harvester
-			return UnsetRogue ();
+			// grab reactivated rogue item
+			GameObject rogueObject = UnsetRogue ();
+
+			// pop rogue pickup back into world
+			rogueObject.GetComponent<Rigidbody> ().AddForce(Vector3.up * 30f);
+
+			return true;
 		}
 
-		// no grown rogue to harvest
-		return null;
+		return false;
 	}
 
 	// NOTE: first-pass rogue demo method for ending game once rogue runs through castle

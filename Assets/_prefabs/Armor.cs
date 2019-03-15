@@ -18,6 +18,10 @@ public class Armor : MonoBehaviour {
 	private Sprite currentSprite;
 	private List<Sprite> levelSprites;
 
+	// armor stats
+	public int level = 1; 		// overall stat
+	public int defense = 1; 	// potentially determine other stats individually (added to rogue base)
+
 	void Start() {
 		// put together visuals list for updating on level ups
 		levelSprites = new List<Sprite> () {
@@ -31,10 +35,6 @@ public class Armor : MonoBehaviour {
 		// display the lowest level sprite
 		this.GetComponent<SpriteRenderer> ().sprite = levelSprites[0];
 	}
-
-	// starting armor stats
-	int level = 1; 		// overall stat
-	int damage = 1; 	// potentially determine other stats individually (added to rogue base)
 
 	// armor leveling
 	public void LevelUp() {

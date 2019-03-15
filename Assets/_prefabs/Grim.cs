@@ -205,15 +205,9 @@ public class Grim : MonoBehaviour {
 		// attempt to harvest a plot
 		if (groundTile != null && groundTile.tag == "FarmPlot") {
 			Plot farmPlot = groundTile.GetComponent<Plot> ();
-			GameObject harvestedRogue = farmPlot.HarvestRogue ();
+			farmPlot.HarvestRogue ();
 
-			Debug.Log (string.Format("Successfully swiped a farm plot named {0}", farmPlot.name));
-
-			// grab rogue as current item and try adding to inventory
-			if (harvestedRogue != null) {
-				Debug.Log ("Picking up and trying to store harvested rogue");
-				PickUp (harvestedRogue);
-			}
+			Debug.Log (string.Format ("Successfully swiped a farm plot named {0}", farmPlot.name));
 		}
 
 		// TODO: also take a swipe at enemy if one present

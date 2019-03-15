@@ -16,6 +16,10 @@ public class Weapon : MonoBehaviour {
 	private Sprite currentSprite;
 	private List<Sprite> levelSprites;
 
+	// weapon stats
+	public int level = 1; 	// overall stat
+	public int damage = 1; 	// potentially determine other stats individually (added to rogue base)
+
 	void Start() {
 		// put together visuals list for updating on level ups
 		levelSprites = new List<Sprite> () {
@@ -29,10 +33,6 @@ public class Weapon : MonoBehaviour {
 		// display the lowest level sprite
 		this.GetComponent<SpriteRenderer> ().sprite = levelSprites[0];
 	}
-
-	// starting weapon stats
-	int level = 1; 		// overall stat
-	int damage = 1; 	// potentially determine other stats individually (added to rogue base)
 
 	// weapon leveling
 	public void LevelUp() {

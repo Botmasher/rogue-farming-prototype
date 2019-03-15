@@ -46,17 +46,17 @@ public class Rogue : MonoBehaviour {
 	int actionCounter = 0;
 
 	// starting stats - level up as fight through castles
-	int armor = 1;
-	int thievery = 1;
-	int attack = 1;
-	int agility = 1;
+	public int armor = 1;
+	public int thievery = 1;
+	public int attack = 1;
+	public int agility = 1;
 
 	// collected this pass through castle and brought to reaper
 	int treasure = 0;
 
 	// factor pushing events in your favor
 	// TODO go through lucky events and add to luck meter
-	float luck = 0.05f;
+	public float luck = 0.05f;
 
 	void Start () {
 		// store starting equipment
