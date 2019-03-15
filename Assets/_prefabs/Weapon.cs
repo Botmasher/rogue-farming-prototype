@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour {
 
-	// TODO: give unique names to weapons
-	public string name = "Test Weapon";
+	// give unique name to weapon
+	public string name;
+	public string weaponType = "Sword";
 
 	// hold visuals for each level to display in inventory
 	public Sprite level1Sprite;
@@ -13,6 +14,7 @@ public class Weapon : MonoBehaviour {
 	public Sprite level3Sprite;
 	public Sprite level4Sprite;
 	public Sprite level5Sprite;
+	public Sprite level6Sprite;
 	private Sprite currentSprite;
 	private List<Sprite> levelSprites;
 
@@ -27,11 +29,29 @@ public class Weapon : MonoBehaviour {
 			level2Sprite,
 			level3Sprite,
 			level4Sprite,
-			level5Sprite
+			level5Sprite,
+			level6Sprite
 		};
 
 		// display the lowest level sprite
 		this.GetComponent<SpriteRenderer> ().sprite = levelSprites[0];
+
+		// build a name for the weapon
+		Rename ();
+	}
+
+	// build armor name based on its level
+	List<string> names = new List<string> () {
+		"Cardboard",
+		"Wood",
+		"Stone",
+		"Silver",
+		"Gold",
+		"Diamond",
+		"Carbon"
+	};
+	void Rename() {
+		name = names [level - 1] + " " + weaponType;
 	}
 
 	// weapon leveling
@@ -43,6 +63,9 @@ public class Weapon : MonoBehaviour {
 		if (this.level < levelSprites.Count) {
 			this.GetComponent<SpriteRenderer> ().sprite = levelSprites [this.level - 1];
 		}
+
+		// build a new name
+		Rename ();
 	}
 
 }

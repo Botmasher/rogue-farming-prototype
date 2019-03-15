@@ -10,6 +10,8 @@ public class Castle : MonoBehaviour {
 	// obstacle prefab to instantiate and fill with level obstacle (enemy/treasure/hazard/boss) data
 	public GameObject castleObstacle;
 
+	public string castleName = "Castle";
+
 	// progress pointer to position within level obstacles
 	int currentLevel = 0;
 	int currentObstacle = 0;
@@ -313,6 +315,9 @@ public class Castle : MonoBehaviour {
 		List<string> finalBosses = new List<string>(obstacles["finalBoss"].Keys);
 		bossName = finalBosses [Random.Range (0, finalBosses.Count)];
 		AddRandomTimes (level4, "finalBoss", bossName, 1, 1);
+
+		// update the castle name with its new overlord
+		castleName = "Castle of " + bossName;
 
 		/* New Level List */
 		// remove past levels and add new ones

@@ -6,8 +6,9 @@ using UnityEngine;
 // 	- alternatively inherit/inject a base Equipment
 public class Armor : MonoBehaviour {
 
-	// TODO: give unique names to armor
-	public string name = "Test Armor";
+	// give unique names to armor
+	public string name;
+	public string armorType = "Armor";
 
 	// hold visuals for each level to display in inventory
 	public Sprite level1Sprite;
@@ -15,6 +16,7 @@ public class Armor : MonoBehaviour {
 	public Sprite level3Sprite;
 	public Sprite level4Sprite;
 	public Sprite level5Sprite;
+	public Sprite level6Sprite;
 	private Sprite currentSprite;
 	private List<Sprite> levelSprites;
 
@@ -29,11 +31,29 @@ public class Armor : MonoBehaviour {
 			level2Sprite,
 			level3Sprite,
 			level4Sprite,
-			level5Sprite
+			level5Sprite,
+			level6Sprite
 		};
 
 		// display the lowest level sprite
 		this.GetComponent<SpriteRenderer> ().sprite = levelSprites[0];
+
+		// give the armor a name
+		Rename();
+	}
+
+	// build armor name based on its level
+	List<string> names = new List<string> () {
+		"Cardboard",
+		"Wood",
+		"Stone",
+		"Silver",
+		"Gold",
+		"Silk",
+		"Carbon"
+	};
+	void Rename() {
+		name = names[level - 1] + " " + armorType;
 	}
 
 	// armor leveling
@@ -45,6 +65,8 @@ public class Armor : MonoBehaviour {
 		if (this.level < levelSprites.Count) {
 			this.GetComponent<SpriteRenderer> ().sprite = levelSprites [this.level - 1];
 		}
+
+		Rename ();
 	}
 
 }

@@ -53,6 +53,11 @@ public class Plot : MonoBehaviour {
 	int plantedHour = -1;
 	System.Action growthAction;
 
+	void Awake () {
+		// get epitaph ui reference
+		epitaph = GameObject.FindGameObjectWithTag("Epitaph");
+	}
+
 	void Start () {
 		// add all sprites to the list
 		sprites.Add (spriteEmpty);
@@ -62,9 +67,6 @@ public class Plot : MonoBehaviour {
 		sprites.Add (spriteCracked);
 		// set current sprite
 		//GetComponent<SpriteRenderer> ().sprite = sprites[0];
-
-		// get epitaph ui reference
-		epitaph = GameObject.FindGameObjectWithTag("Epitaph");
 
 		// cyclical behavior for day manager
 		growthAction = () => GrowRogue ();
@@ -217,37 +219,42 @@ public class Plot : MonoBehaviour {
 	}
 
 	void OnTriggerStay(Collider other) {
-		if (other.gameObject.tag == "Player" && !isEmpty) {
+		if (other.gameObject.tag == "Player") {
+			// player over planted plot - show rogue info
+			if (!isEmpty) {
+				epitaph.GetComponent<Epitaph> ().Show ();
 
-			epitaph.GetComponent<Epitaph> ().Show ();
+				// fill and format title
+				string epitaphText = "<size=30><b>" + rogue.name + "</b></size>";
+				epitaphText += "\n<color=#aaaaaaff>______________</color>\n";
 
-			// fill and format title
-			string epitaphText = "<size=40><b>" + rogue.name + "</b></size>";
-			epitaphText += "\n<color=#aaaaaaff>______________</color>\n";
+				// fill and format text body
+				epitaphText += "<size=25>";
 
-			// fill and format text body
-			epitaphText += "<size=25>";
+				// text for a rogue after finished with a run
+				if (isHarvestable) {
+					epitaphText += "perished\n";
+					epitaphText += "<size=15>on <b>floor " + GrowthStage + "</b> ";
+					epitaphText += "at the hands of a</size>\n";
+					epitaphText += "<size=23><i>" + rogue.deathDealerName.ToUpper () + "</i></size>\n";
+					epitaphText += "<size=18>(some kind of <i>" + rogue.deathDealerType.ToUpper () + "</i>)</size>";
+				}
+				// text for a rogue currently mid-run
+				else {
+					epitaphText += GrowthStage > 0
+						? "<size=22>bravely facing <b>stage " + GrowthStage + "</b> within the <i>" + castle.castleName + "</i></size>"
+						: "<i>setting out on an adventure</i>";
+				}
 
-			// text for a rogue after finished with a run
-			if (isHarvestable) {
-				epitaphText += "perished\n";
-				epitaphText += "<size=15>on <b>floor " + GrowthStage + "</b> ";
-				epitaphText += "at the hands of a</size>\n";
-				epitaphText += "<size=23><i>" + rogue.deathDealerName.ToUpper() + "</i></size>\n";
-				epitaphText += "<size=18>(some kind of <i>" + rogue.deathDealerType.ToUpper() + "</i>)</size>";
+				epitaphText += "</size>";
+
+				// update ui with text
+				epitaph.GetComponentInChildren<Text> ().text = epitaphText;
 			}
-			// text for a rogue currently mid-run
+			// player over plot which is now empty - hide the epitaph
 			else {
-				epitaphText += GrowthStage > 0
-					? "facing level <b>" + GrowthStage + "</b>"
-					: "<i>setting out on an adventure</i>"
-				;
+				epitaph.GetComponent<Epitaph> ().Hide ();
 			}
-
-			epitaphText += "</size>";
-
-			// update ui with text
-			epitaph.GetComponentInChildren<Text> ().text = epitaphText;
 		}
 	}
 

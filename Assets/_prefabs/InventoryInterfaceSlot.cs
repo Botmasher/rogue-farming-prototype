@@ -107,24 +107,29 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 
 		if (item.GetComponent<Weapon> () != null) {
 			Weapon weapon = item.GetComponent<Weapon> ();
-			formattedStats += weapon.name + "\n\n";
+			formattedStats += "<b>" + weapon.name + "</b>\n";
 			formattedStats += "lvl: " + weapon.level + "\n";
 			formattedStats += "dmg: " + weapon.damage + "\n";
 
 		} else if (item.GetComponent<Armor> () != null) {
 			Armor armor = item.GetComponent<Armor> ();
-			formattedStats += armor.name + "\n\n";
+			formattedStats += "<b>" + armor.name + "</b>\n";
 			formattedStats += "lvl: " + armor.level + "\n";
 			formattedStats += "def: " + armor.defense + "\n";
 
 		} else if (item.GetComponent<Rogue> () != null) {
 			Rogue rogue = item.GetComponent<Rogue> ();
-			formattedStats += rogue.name + "\n";
-			formattedStats += "arm: " + rogue.armor + "\n";
-			formattedStats += "att: " + rogue.attack + "\n";
-			formattedStats += "agl: " + rogue.agility + "\n";
-			formattedStats += "thv: " + rogue.thievery + "\n";
-			formattedStats += "lck: " + rogue.luck + "\n";
+			formattedStats += "<b>" + rogue.name + "</b>\n";
+			formattedStats += "health: " + rogue.health + "\n";
+			formattedStats += "armor: " + rogue.armor + "\n";
+			formattedStats += "attack: " + rogue.attack + "\n";
+			formattedStats += "agility: " + rogue.agility + "\n";
+			formattedStats += "thievery: " + rogue.thievery + "\n";
+			formattedStats += "luck: " + rogue.luck + "\n";
+
+			// TODO: show armor and weapon info if those are equipped
+			// 	- remove some rogue stats?
+			// 	- add as + after armor and attack?
 
 		} else {
 			formattedStats = item.name;
