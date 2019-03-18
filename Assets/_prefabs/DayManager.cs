@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class DayManager : MonoBehaviour {
 
-	// singleton 
+	// day-passing singleton hookable throughout game
 	public static DayManager Day;
+
+	// lighting object to control based on timing
+	public GameObject light;
 
 	// time tracking
 	int days; 				// number of days passed since game start
@@ -47,7 +50,8 @@ public class DayManager : MonoBehaviour {
 		}
 
 		// test subscribing for day events
-		this.At(0, () => Debug.Log("It's a brand new day! Day " + days + " in fact."));
+		//this.At(0, () => Debug.Log("It's a brand new day! Day " + days + " in fact."));
+		this.EveryHour(() => Debug.Log("The time is hour " + hour));
 
 	}
 
@@ -65,6 +69,19 @@ public class DayManager : MonoBehaviour {
 			// run hourly callbacks
 			Announce (hour);
 		}
+
+		// figure out hours per full rotation and seconds per full rotation (360)
+//		float secondlyRotation = secondsCounter * 360f / (hoursPerDay * secondsPerHour);
+		float degreesPerSecond = 360f / (hoursPerDay * secondsPerHour);
+		float hourlyRotation = hour * (360f / hoursPerDay);
+
+		// rotate light over time
+		light.transform.Rotate(Vector3.left * (secondsCounter / degreesPerSecond));
+//		light.transform.rotation = Quaternion.Euler(Vector3.Lerp (light.transform.rotation.eulerAngles, new Vector3 (
+//			light.transform.rotation.x + hourlyRotation + secondlyRotation,
+//			light.transform.rotation.y,
+//			light.transform.rotation.z
+//		), Time.deltaTime * speed));
 	}
 
 	// event notification

@@ -580,11 +580,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   name: Test Armor
+  armorType: Armor
   level1Sprite: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
   level2Sprite: {fileID: 0}
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level6Sprite: {fileID: 0}
   level: 1
   defense: 1
 --- !u!212 &311640706
@@ -895,11 +897,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   name: Test Weapon
+  weaponType: Sword
   level1Sprite: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
   level2Sprite: {fileID: 0}
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level6Sprite: {fileID: 0}
   level: 1
   damage: 1
 --- !u!212 &698719316
@@ -1229,11 +1233,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   name: Test Weapon
+  weaponType: Sword
   level1Sprite: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
   level2Sprite: {fileID: 0}
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level6Sprite: {fileID: 0}
   level: 1
   damage: 1
 --- !u!212 &1219268615
@@ -1629,6 +1635,11 @@ Prefab:
       propertyPath: speed
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 114470021863263748, guid: 417d623cb9a64416d998885e4eca9235,
+        type: 2}
+      propertyPath: light
+      value: 
+      objectReference: {fileID: 988125616}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 417d623cb9a64416d998885e4eca9235, type: 2}
   m_IsPrefabParent: 0
@@ -1667,11 +1678,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   name: Test Armor
+  armorType: Armor
   level1Sprite: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
   level2Sprite: {fileID: 0}
   level3Sprite: {fileID: 0}
   level4Sprite: {fileID: 0}
   level5Sprite: {fileID: 0}
+  level6Sprite: {fileID: 0}
   level: 1
   defense: 1
 --- !u!212 &1825969447
