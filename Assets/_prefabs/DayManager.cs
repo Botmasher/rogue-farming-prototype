@@ -17,7 +17,11 @@ public class DayManager : MonoBehaviour {
 	float secondsCounter; 	// keep track of real seconds to divide into game hours and days
 
 	// time passage factor
-	public float speed = 1f; 		// slow or speed up time
+	[Range(0f,10f)]public float speed = 1f; 	// slow or speed up time
+
+	// light rotation around axis
+	Quaternion lightRotationTarget;
+	float degreesPerHour; 			// number of sunlight rotation degrees for each in-game hour
 
 	// time constants
 	// TODO pin more to deltaTime instead of tracking only frames
@@ -43,6 +47,9 @@ public class DayManager : MonoBehaviour {
 		days = -1;
 		hour = hoursPerDay;
 
+		// slice up daylight rotation
+		degreesPerHour = 360f / hoursPerDay;
+
 		// initialize all hours with empty actions lists for callbacks
 		// times run from 0:00 to n-1:99 so hours per day limit is never struck
 		for (int i = 0; i < hoursPerDay; i++) {
@@ -56,32 +63,31 @@ public class DayManager : MonoBehaviour {
 	}
 
 	void Update() {
+		// in-game time per frame
 		secondsCounter += Time.deltaTime * speed;
+
 		// an hour has passed
 		if (secondsCounter >= secondsPerHour) {
 			hour++;
 			secondsCounter = 0f;
+
 			// a full day has passed
 			if (hour >= hoursPerDay) {
 				days++;
 				hour = 0;
 			}
+
 			// run hourly callbacks
 			Announce (hour);
+
+			//lightRotationDifference = 360f / hoursPerDay;
+			lightRotationTarget = Quaternion.Euler(Vector3.left * degreesPerHour * hour);
 		}
 
-		// figure out hours per full rotation and seconds per full rotation (360)
-//		float secondlyRotation = secondsCounter * 360f / (hoursPerDay * secondsPerHour);
-		float degreesPerSecond = 360f / (hoursPerDay * secondsPerHour);
-		float hourlyRotation = hour * (360f / hoursPerDay);
-
-		// rotate light over time
-		light.transform.Rotate(Vector3.left * (secondsCounter / degreesPerSecond));
-//		light.transform.rotation = Quaternion.Euler(Vector3.Lerp (light.transform.rotation.eulerAngles, new Vector3 (
-//			light.transform.rotation.x + hourlyRotation + secondlyRotation,
-//			light.transform.rotation.y,
-//			light.transform.rotation.z
-//		), Time.deltaTime * speed));
+		// rotate light towards new hourly angle
+		if (light.transform.rotation != lightRotationTarget) {
+			light.transform.rotation = Quaternion.Lerp(light.transform.rotation, lightRotationTarget, Time.deltaTime * speed);
+		}
 	}
 
 	// event notification
