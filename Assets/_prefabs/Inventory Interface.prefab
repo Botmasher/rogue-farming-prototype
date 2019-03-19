@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44fd4073d4845475ebad8034c35cd253, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slot: {fileID: 114463576242910402, guid: bcdabb9784e0b4c728b50ceaca2b2d98, type: 2}
+  slot: {fileID: 1932726334629722, guid: 4ad0bba31934b43ec93351a0e54aa943, type: 2}
   slotStartPosition: {x: -970, y: 0, z: 0}
   slotSpacingHorizontal: 150
   inventory: {fileID: 0}
@@ -57,7 +57,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.39215687}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:

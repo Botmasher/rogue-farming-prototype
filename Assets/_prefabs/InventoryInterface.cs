@@ -7,12 +7,12 @@ using UnityEngine.EventSystems;
 public class InventoryInterface : MonoBehaviour {
 
 	// inventory ui slots info
-	public Image slot; 					// image and transforms for proliferating and visualizing storage slots
+	public GameObject slot; 			// image and transforms for proliferating and visualizing storage slots
 	private RectTransform background; 	// self reference for managing inventory position on screen
 
 	// container for referencing created slot images and items by index
 	// NOTE: slots length derived from inventory items - sync Inventory to keep visuals parallel to data
-	private List<Image> slotList = new List<Image> ();
+	private List<GameObject> slotList = new List<GameObject> ();
 
 	// inventory ui image positioning
 	public Vector3 slotStartPosition;
@@ -54,18 +54,18 @@ public class InventoryInterface : MonoBehaviour {
 		for (int i = 0; i < inventory.Limit(); i++) {
 			// calculate the next horizontal value for the slot to be created
 			slotPositionX = i > 0
-				? slotList[i - 1].rectTransform.anchoredPosition3D.x
+				? slotList[i - 1].GetComponent<RectTransform> ().anchoredPosition3D.x
 				: slotStartPosition.x
 			;
 			
 			// create and store slot
-			slotList.Add (GameObject.Instantiate (slot) as Image);
+			slotList.Add (GameObject.Instantiate (slot));
 
 			// parent to keep slot and item ui under inventory in canvas
-			slotList [i].rectTransform.SetParent (background.transform);
+			slotList [i].GetComponent<RectTransform> ().SetParent (background.transform);
 
 			// position slot along the row
-			slotList [i].rectTransform.anchoredPosition3D = new Vector3 (
+			slotList [i].GetComponent<RectTransform> ().anchoredPosition3D = new Vector3 (
 				slotPositionX + slotSpacingHorizontal,
 				slotStartPosition.y,
 				slotStartPosition.z
@@ -190,7 +190,7 @@ public class InventoryInterface : MonoBehaviour {
 		foreach (RaycastResult raycastResult in raycastResults) {
 			if (raycastResult.gameObject.tag == "InterfaceSlot") {
 				// return the index of the hit ui slot
-				return slotList.IndexOf (raycastResult.gameObject.GetComponent<Image> ());
+				return slotList.IndexOf (raycastResult.gameObject);
 			}
 		}
 		return -1;

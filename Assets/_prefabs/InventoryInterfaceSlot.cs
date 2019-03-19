@@ -14,7 +14,9 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 
 	// reference the renderer for stored item icons
 	// expect incoming stored item to have a sprite icon to render
-	Image image;
+	public Image renderer; 		// for rendering main sprite
+	public Image bgRenderer;	// for sprite below main image
+	public Image fgRenderer; 	// for sprite above main image
 
 	// image when not displaying item sprite
 	public Sprite defaultSprite;
@@ -23,9 +25,8 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 	bool selected = false;
 
 	void Start () {
-		// grab renderer and display the starting sprite
-		image = GetComponent<Image> ();
-		image.sprite = defaultSprite;
+		// clear images and items
+		Clear ();
 
 		// spawn stats ui within the inventory slot
 		statsUI = GameObject.Instantiate (statsUI);
@@ -43,11 +44,11 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 	// set selection status and color of display
 	public void Select () {
 		selected = true;
-		image.color = Color.red;
+		renderer.color = new Color (0.2f, 0.1f, 1f, 1f);
 	}
 	public void Deselect () {
 		selected = false;
-		image.color = Color.white;
+		renderer.color = Color.white;
 	}
 	public void Toggle () {
 		// switch selection status for choosing the same slot multiple times
@@ -60,16 +61,88 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 
 	// point to an inventory object
 	public void Store (GameObject newItem) {
+		// clear out the slot
+		Clear();
+
+		// set the new item as main
 		item = newItem;
+	
 		// update the image displayed in the ui
-		image.sprite = newItem.GetComponent <SpriteRenderer> ().sprite;
+		if (newItem.GetComponent<SpriteRenderer> ()) {
+			renderer.color = Color.white;
+			renderer.sprite = newItem.GetComponent <SpriteRenderer> ().sprite;
+		}
+
+		// capture rogue, weapon or armor item for further evaluation
+		Rogue rogue = newItem.GetComponent<Rogue> ();
+		Weapon weapon = newItem.GetComponent<Weapon> ();
+		Armor armor = newItem.GetComponent<Armor> ();
+
+		// resize weapon item
+		if (weapon != null) {
+			renderer.rectTransform.localPosition = new Vector3 (-1f, 2f, 0f);
+			renderer.rectTransform.sizeDelta = new Vector2 (55f, 115f);
+			renderer.rectTransform.localRotation = Quaternion.Euler (Vector3.forward * 24f);
+		}
+
+		if (armor != null) {
+			renderer.rectTransform.localPosition = new Vector3 (0f, 1f, 0f);
+			renderer.rectTransform.sizeDelta = new Vector2 (75f, 100f);
+		}
+
+		// resize armor item
+
+		// break out a rogue's weapon and armor to display
+		if (rogue != null && rogue.equipment["weapon"] != null) {
+			// render weapon image
+			bgRenderer.color = Color.white;
+			bgRenderer.sprite = rogue.equipment["weapon"].GetComponent<SpriteRenderer> ().sprite;
+
+			// resize the attached weapon to fit behind rogue hand
+			// TODO: avoid hardcoding this here
+			bgRenderer.rectTransform.localPosition = new Vector3 (-32f, 10.5f, 0f);
+			bgRenderer.rectTransform.sizeDelta = new Vector2 (35f, 78f);
+		}
+		if (rogue != null && rogue.equipment ["armor"] != null) {
+			// set the armor image
+			fgRenderer.color = Color.white;
+			fgRenderer.sprite = rogue.equipment ["armor"].GetComponent<SpriteRenderer> ().sprite;
+
+			// resize the attached armor to fit in front of rogue
+			// TODO: avoid hardcoding this here
+			fgRenderer.rectTransform.localPosition = new Vector3 (1.75f, 4.8f, 0f);
+			fgRenderer.rectTransform.sizeDelta = new Vector2 (65f, 85f);
+		}
 	}
 
-	// send back and remove the pointed object
+	// remove the stored item ui and reference
 	public void Clear () {
-		// empty out the ui image and the pickup
-		image.sprite = defaultSprite;
+		// empty out the ui images
+		renderer.sprite = null;
+		renderer.color = Color.clear;
+		renderer.rectTransform.localPosition = Vector3.zero;
+		renderer.rectTransform.sizeDelta = new Vector2(100f, 100f);
+		renderer.rectTransform.rotation = Quaternion.Euler (Vector3.zero);
+
+		bgRenderer.sprite = null;
+		bgRenderer.color = Color.clear;
+		bgRenderer.rectTransform.localPosition = Vector3.zero;
+		bgRenderer.rectTransform.sizeDelta = new Vector2(100f, 100f);
+		bgRenderer.rectTransform.rotation = Quaternion.Euler (Vector3.zero);
+
+		fgRenderer.sprite = null;
+		fgRenderer.color = Color.clear;
+		fgRenderer.rectTransform.localPosition = Vector3.zero;
+		fgRenderer.rectTransform.sizeDelta = new Vector2(100f, 100f);
+		fgRenderer.rectTransform.rotation = Quaternion.Euler (Vector3.zero);
+
+		// empty out the pickup
 		item = null;
+
+		// set the default sprite
+		renderer.sprite = defaultSprite;
+		renderer.color = Color.white;
+
 		// maintain selection status to allow toggling
 		//Deselect();
 	}

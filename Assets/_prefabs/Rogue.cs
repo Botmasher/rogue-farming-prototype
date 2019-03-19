@@ -223,10 +223,13 @@ public class Rogue : MonoBehaviour {
 	}
 	public void Die(string killerName, string killerType) {
 		isAlive = false;
-		health = 0;
+		health = maxHealth;
+
+		// TODO: set stats based on successful actions this run
+
 		deathDealerName = killerName;
 		deathDealerType = killerType;
-		Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
+		//Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
 	}
 
 	/* Adventuring through generated obstacles */

@@ -43,7 +43,6 @@ public class Weapon : MonoBehaviour {
 	// build armor name based on its level
 	List<string> names = new List<string> () {
 		"Cardboard",
-		"Wood",
 		"Stone",
 		"Silver",
 		"Gold",

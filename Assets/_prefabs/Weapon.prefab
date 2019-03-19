@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114995943325729998}
   m_Layer: 0
   m_Name: Weapon
-  m_TagString: Pickup
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54,11 +54,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   name: Vanquisher
-  level1Sprite: {fileID: 0}
-  level2Sprite: {fileID: 0}
-  level3Sprite: {fileID: 0}
-  level4Sprite: {fileID: 0}
-  level5Sprite: {fileID: 0}
+  weaponType: Sword
+  level1Sprite: {fileID: 21300000, guid: 3902424fc9a8646a8ae3cccde515c5e6, type: 3}
+  level2Sprite: {fileID: 21300000, guid: 00e13a8c069d94773b3f3031c9345db5, type: 3}
+  level3Sprite: {fileID: 21300000, guid: 49951ed4210cc4237b28944211582eaf, type: 3}
+  level4Sprite: {fileID: 21300000, guid: 2f0f582fb3643454886a8377b3bf1811, type: 3}
+  level5Sprite: {fileID: 21300000, guid: b53a64a3b172748a996ac5f34da9afb2, type: 3}
+  level6Sprite: {fileID: 21300000, guid: 75d19fcbb8c48464eba764883ae5dd95, type: 3}
+  level: 1
+  damage: 1
 --- !u!114 &114995943325729998
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -70,7 +74,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a269c682a1de4b0392e7ee32e1fa270, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventorySprite: {fileID: 0}
 --- !u!212 &212187950808272538
 SpriteRenderer:
   m_ObjectHideFlags: 1
