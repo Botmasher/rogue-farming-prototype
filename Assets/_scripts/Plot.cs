@@ -9,12 +9,11 @@ public class Plot : MonoBehaviour {
 	public Rogue rogue;		// behavior for the rogue planted in this plot
 	public Castle castle; 	// behavior for the castle a rogue fights through if planted in this plot
 
-	// sprites for various growth and interaction states
-	public Sprite spriteEmpty;
-	public Sprite spritePlanted;
-	public Sprite spriteGrowing;
-	public Sprite spriteDone;
-	public Sprite spriteCracked;
+	// sprite rendering scripts for changing up plot visuals
+	// expect this plot to have one of each behavior components its children
+	PlotStone stoneRenderer; 	// display plot headstone
+	PlotDirt dirtRenderer;		// display plot soil
+	PlotRoot growthRenderer; 	// display plot plant in growth stages
 
 	// epitaph ui for displaying plot status
 	GameObject epitaph;
@@ -56,18 +55,14 @@ public class Plot : MonoBehaviour {
 	void Awake () {
 		// get epitaph ui reference
 		epitaph = GameObject.FindGameObjectWithTag("Epitaph");
+
+		// grab child renderer components
+		stoneRenderer = GetComponentInChildren<PlotStone> ();
+		dirtRenderer = GetComponentInChildren<PlotDirt> ();
+		growthRenderer = GetComponentInChildren<PlotRoot> ();
 	}
 
 	void Start () {
-		// add all sprites to the list
-		sprites.Add (spriteEmpty);
-		sprites.Add (spritePlanted);
-		sprites.Add (spriteGrowing);
-		sprites.Add (spriteDone);
-		sprites.Add (spriteCracked);
-		// set current sprite
-		//GetComponent<SpriteRenderer> ().sprite = sprites[0];
-
 		// cyclical behavior for day manager
 		growthAction = () => GrowRogue ();
 	}
@@ -99,12 +94,19 @@ public class Plot : MonoBehaviour {
 		// check if already done growing - enable harvestability
 		if (growthStageCurrent >= growthStageMax || !rogue.isAlive) {
 			isHarvestable = true;
+
+			// show a harvestable mark on the plot headstone
+			stoneRenderer.Mark ();
+
 			Debug.Log ("Setting nonalive/finished rogue to be harvestable!");
 			return;
 		}
 
 		// advance the growth stage
 		growthStageCurrent++;
+
+		// display the current growth sprite
+		growthRenderer.SetGrowthSprite (growthStageCurrent);
 
 		// fetch current castle level info then advance castle level
 		List<CastleObstacle> obstacles = castle.RunLevel();
@@ -114,8 +116,6 @@ public class Plot : MonoBehaviour {
 		foreach (CastleObstacle obstacle in obstacles) {
 			if (rogue.isAlive) {
 				rogue.FeedObstacle (obstacle);
-			} else {
-				
 			}
 		}
 
@@ -164,6 +164,12 @@ public class Plot : MonoBehaviour {
 			// attach incoming rogue to this plot
 			SetRogue (newRogue);
 
+			// display the plot headstone
+			stoneRenderer.Show ();
+
+			// display the planted root
+			growthRenderer.SetGrowthSprite (0);
+
 			// set up day callback to start cycling growth
 			plantedHour = DayManager.Day.EveryDay (growthAction);
 
@@ -188,6 +194,9 @@ public class Plot : MonoBehaviour {
 
 			Debug.Log("Trying to harvest rogue " + rogue.name + " with health " + rogue.health);
 
+			// stop displaying the plot headstone
+			stoneRenderer.Hide ();
+
 			// reset planted rogue and castle scheduling
 			growthStageCurrent = 0;
 			DayManager.Day.NotAt (plantedHour, growthAction);
@@ -196,6 +205,9 @@ public class Plot : MonoBehaviour {
 			// reset plot harvestability
 			isHarvestable = false;
 			isEmpty = true;
+
+			// reset the growth stage sprite
+			growthRenderer.SetGrowthSprite (-1);
 
 			// grab reactivated rogue item
 			GameObject rogueObject = UnsetRogue ();
@@ -210,23 +222,31 @@ public class Plot : MonoBehaviour {
 	}
 
 
-	/* Show and hide epitaph with rogue run stats  */
+	/* Show and hide headstone on plot and sidescreen epitaph with rogue run stats  */
 
 	void OnTriggerExit(Collider other) {
 		if (other.gameObject.tag == "Player") {
+			// switch off plot soil highlighting
+			dirtRenderer.Deselect();
+
+			// hide epitaph ui
 			epitaph.GetComponent<Epitaph> ().Hide ();
 		}
 	}
 
 	void OnTriggerStay(Collider other) {
 		if (other.gameObject.tag == "Player") {
+
+			// player over a plot - highlight the plot soil
+			dirtRenderer.Select();
+
 			// player over planted plot - show rogue info
 			if (!isEmpty) {
 				epitaph.GetComponent<Epitaph> ().Show ();
 
 				// fill and format title
 				string epitaphText = "<size=30><b>" + rogue.name + "</b></size>";
-				epitaphText += "\n<color=#aaaaaaff>______________</color>\n";
+				epitaphText += "\n<color=#666666ff>______________</color>\n";
 
 				// fill and format text body
 				epitaphText += "<size=25>";

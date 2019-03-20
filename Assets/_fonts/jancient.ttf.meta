@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 9dc06d5af85014f0b96c08ea81befdad
+timeCreated: 1553109800
+licenseType: Free
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: JSL Ancient
+  fontNames:
+  - JSL Ancient
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

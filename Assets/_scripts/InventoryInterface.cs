@@ -18,6 +18,10 @@ public class InventoryInterface : MonoBehaviour {
 	public Vector3 slotStartPosition;
 	public float slotSpacingHorizontal;
 
+	// collection of background fx images to use as animation frames
+	public List<Sprite> backgroundSprites = new List<Sprite> ();
+	bool cyclingBackwards = false; 		// check for animating through sprites forwards then backwards
+
 	// reference to the inventory tied to this ui for sending results of player interactions
 	public Inventory inventory;
 
@@ -67,10 +71,14 @@ public class InventoryInterface : MonoBehaviour {
 			// position slot along the row
 			slotList [i].GetComponent<RectTransform> ().anchoredPosition3D = new Vector3 (
 				slotPositionX + slotSpacingHorizontal,
-				slotStartPosition.y,
+				slotStartPosition.y - 0.3f * this.GetComponent<RectTransform> ().sizeDelta.y,
 				slotStartPosition.z
 			);
 		}
+
+		// begin animating inventory bg
+		GetComponent<Image> ().color = new Color(1f, 1f, 1f, 0.6f);
+		StartCoroutine ("CycleBackgroundSprites", 0);
 	}
 
 	// interact with and animate ui
@@ -232,7 +240,28 @@ public class InventoryInterface : MonoBehaviour {
 				slotBehavior.Deselect ();
 			}
 		}
-
 	}
 
+	IEnumerator CycleBackgroundSprites (int spriteId) {
+		// display this bg sprite for a short time
+		GetComponent<Image> ().sprite = backgroundSprites[spriteId];
+		yield return new WaitForSeconds (0.4f);
+
+		// determine next bg sprite animating either forwards or backwards
+		int nextSpriteId;
+		if (cyclingBackwards) {
+			nextSpriteId = spriteId - 1;
+			if (nextSpriteId < 1) {
+				cyclingBackwards = false;
+			}
+		} else {
+			nextSpriteId = spriteId + 1;
+			if (nextSpriteId >= backgroundSprites.Count - 1) {
+				cyclingBackwards = true;
+			}
+		}
+
+		// display next bg sprite
+		StartCoroutine ("CycleBackgroundSprites", nextSpriteId);
+	}
 }
