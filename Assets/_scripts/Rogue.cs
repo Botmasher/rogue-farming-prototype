@@ -17,7 +17,7 @@ public class Rogue : MonoBehaviour {
 	// - lockout period prohibited clean manual playthrough
 
 	// main stat for rogue life - deplete this to end planting
-	public int health = 3;		// updated while adventuring
+	public int health;			// updated while adventuring
 	int maxHealth = 3; 			// intended to be read when brought back to life - ? updated through stats or items
 	public bool isAlive = true;
 
@@ -67,6 +67,8 @@ public class Rogue : MonoBehaviour {
 		// TODO: append generation on harvest / when calling Live()
 		name = GenerateName ();
 		gameObject.name = name;
+
+		health = maxHealth;
 
 		// store starting equipment
 		if (weaponEquipment != null) equipment["weapon"] = weaponEquipment;
