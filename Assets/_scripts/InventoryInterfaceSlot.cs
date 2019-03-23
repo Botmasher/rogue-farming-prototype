@@ -194,8 +194,8 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 			Rogue rogue = item.GetComponent<Rogue> ();
 			formattedStats += "<b>" + rogue.name + "</b>\n";
 			formattedStats += "health: " + rogue.health + "\n";
-			formattedStats += "armor: " + rogue.armor + "\n";
-			formattedStats += "attack: " + rogue.attack + "\n";
+			formattedStats += "armor: " + rogue.armor + (rogue.armorEquipment ? " <b> + " + rogue.armorEquipment.GetComponent<Armor> ().defense +"</b>\n" : "\n");
+			formattedStats += "attack: " + rogue.attack + (rogue.weaponEquipment ? " <b> + " + rogue.weaponEquipment.GetComponent<Weapon> ().damage +"</b>\n" : "\n");
 			formattedStats += "agility: " + rogue.agility + "\n";
 			formattedStats += "thievery: " + rogue.thievery + "\n";
 			formattedStats += "luck: " + rogue.luck + "\n";
@@ -210,8 +210,8 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 
 		statsText.text = formattedStats;
 
-
 	}
+
 	// close UI on hover exit - called via inspector
 	public void HideItemStatsUI () {
 		statsUI.SetActive (false);

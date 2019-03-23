@@ -29,6 +29,12 @@ public class Rogue : MonoBehaviour {
 	// NOTE: if updated after frame, cannot do async obstacles - consider coroutine for life/death actions like taking damage
 	public bool isBusy = false;
 
+	// TODO: tighten storing vs equipping (see Equip and Unequip methods)
+	// 	- some things work with armor and weapons by referencing the dictionary, others the go vars
+	// 	- currently setting/unsetting both dictionary and g.o. in Equip, Unequip
+	//	- storage is for the rogue and separate from Grim inventory
+	// 	- storage may also include items for health, power, ...
+
 	// weaponry and armor storage
 	public Dictionary <string, GameObject> equipment = new Dictionary<string, GameObject> () {
 		{ "armor", null },
@@ -150,12 +156,14 @@ public class Rogue : MonoBehaviour {
 		// attach weapon item to behavior and object
 		if (item.GetComponent<Weapon> () && (equipment["weapon"] == null || switchOut)) {
 			equipment["weapon"] = item;
+			weaponEquipment = item;
 			item.transform.SetParent (this.transform);
 			return true;
 		}
 		// attach armor item to behavior and object
 		else if (item.GetComponent<Armor> () && (equipment["armor"] == null || switchOut)) {
 			equipment["armor"] = item;
+			armorEquipment = item;
 			item.transform.SetParent (this.transform);
 			return true;
 		}
@@ -170,6 +178,15 @@ public class Rogue : MonoBehaviour {
 		// remove specific equipment entry
 		if (equipment.ContainsKey (itemKey) && equipment[itemKey] != null) {
 			equipment [itemKey] = null;
+
+			// empty out references to weapons and armor outside the item dictionary
+			if (itemKey == "weapon") {
+				weaponEquipment = null;
+			}
+			if (itemKey == "armor") {
+				armorEquipment = null;
+			}
+
 			return true;
 		}
 		// no valid equipment key or equipment entry
@@ -228,6 +245,10 @@ public class Rogue : MonoBehaviour {
 		health = maxHealth;
 
 		// TODO: set stats based on successful actions this run
+		//  - castle keeps memory of augments gained this run
+		// 	- OR rogue keeps then empties them into skills
+		weaponEquipment.GetComponent<Weapon>().AddXP (100);
+		armorEquipment.GetComponent<Armor>().AddXP (100);
 
 		deathDealerName = killerName;
 		deathDealerType = killerType;

@@ -24,6 +24,10 @@ public class Armor : MonoBehaviour {
 	public int level = 1; 		// overall stat
 	public int defense = 1; 	// potentially determine other stats individually (added to rogue base)
 
+	// armor level up
+	public int currentXp = 0; 	// current xp on this weapon lvl
+	public int levelXp = 100; 	// total xp required to advance to next weapon lvl
+
 	void Start() {
 		// put together visuals list for updating on level ups
 		levelSprites = new List<Sprite> () {
@@ -56,9 +60,16 @@ public class Armor : MonoBehaviour {
 	}
 
 	// armor leveling
+	public void AddXP (int addedXp) {
+		currentXp += addedXp;
+		if (currentXp > levelXp) LevelUp ();
+	}
 	public void LevelUp() {
 		// augment stats
 		this.level++;
+
+		// spend the XP cost to level up
+		currentXp -= levelXp;
 
 		// select a new visual if available
 		if (this.level < levelSprites.Count) {
