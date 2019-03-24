@@ -22,13 +22,33 @@ public class Armor : MonoBehaviour {
 
 	// armor stats
 	public int level = 1; 		// overall stat
-	public int defense = 1; 	// potentially determine other stats individually (added to rogue base)
+	public int defense; 		// potentially determine other stats individually (added to rogue base)
+	List<int> defenseLevels = new List<int> () {
+		1,
+		3,
+		6,
+		12,
+		24,
+		48
+	};
 
 	// armor level up
 	public int currentXp = 0; 	// current xp on this weapon lvl
-	public int levelXp = 100; 	// total xp required to advance to next weapon lvl
+	public int levelXp; 		// total xp required to advance to next weapon lvl
+	List<int> levelXps = new List<int> () {
+		0,
+		100,
+		500,
+		1200,
+		3000,
+		6000
+	};
 
 	void Start() {
+		// initialize levelup
+		defense = defenseLevels[level - 1];		// protection offered at current level
+		levelXp = levelXps [level]; 			// XP required to reach the next level
+
 		// put together visuals list for updating on level ups
 		levelSprites = new List<Sprite> () {
 			level1Sprite,
@@ -62,20 +82,31 @@ public class Armor : MonoBehaviour {
 	// armor leveling
 	public void AddXP (int addedXp) {
 		currentXp += addedXp;
-		if (currentXp > levelXp) LevelUp ();
+
+		// TODO: handle leveling up multiple times with large dose of XP
+
+		if (currentXp > levelXps [level]) {
+			LevelUp ();
+		}
 	}
 	public void LevelUp() {
-		// augment stats
-		this.level++;
+		// augment armor unless reached level cap
+		level = Mathf.Min(level + 1, levelXps.Count);
 
+		// XP management
+		//
 		// spend the XP cost to level up
-		currentXp -= levelXp;
+		currentXp -= levelXps[level];
+		// raise level XP cost to next level (read incl in inspector)
+		levelXp = levelXps[level];
 
-		// select a new visual if available
-		if (this.level < levelSprites.Count) {
-			this.GetComponent<SpriteRenderer> ().sprite = levelSprites [this.level - 1];
-		}
-
+		// Data and visuals
+		//
+		// augment the stats to current level
+		defense = defenseLevels[level - 1];
+		// select a new visual
+		this.GetComponent<SpriteRenderer> ().sprite = levelSprites [level - 1];
+		// get the new name
 		Rename ();
 	}
 

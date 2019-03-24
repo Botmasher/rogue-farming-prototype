@@ -241,14 +241,18 @@ public class Rogue : MonoBehaviour {
 		health = maxHealth;
 	}
 	public void Die(string killerName, string killerType) {
+		// tally points before death
+		if (isAlive) {
+			// TODO: set stats based on successful actions this run
+			//  - castle keeps memory of augments gained this run
+			// 	- OR rogue keeps then empties them into skills
+
+			weaponEquipment.GetComponent<Weapon>().AddXP (110);
+			armorEquipment.GetComponent<Armor>().AddXP (110);
+		}
+
 		isAlive = false;
 		health = maxHealth;
-
-		// TODO: set stats based on successful actions this run
-		//  - castle keeps memory of augments gained this run
-		// 	- OR rogue keeps then empties them into skills
-		weaponEquipment.GetComponent<Weapon>().AddXP (100);
-		armorEquipment.GetComponent<Armor>().AddXP (100);
 
 		deathDealerName = killerName;
 		deathDealerType = killerType;

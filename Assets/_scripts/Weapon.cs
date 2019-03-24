@@ -20,13 +20,33 @@ public class Weapon : MonoBehaviour {
 
 	// weapon stats
 	public int level = 1; 	// overall stat
-	public int damage = 1; 	// potentially determine other stats individually (added to rogue base)
+	List<int> damageLevels = new List<int> () {
+		1,
+		3,
+		6,
+		12,
+		24,
+		48
+	};
+	public int damage; 		// potentially determine other stats individually (added to rogue base)
 
 	// weapon level up
 	public int currentXp = 0; 	// current xp on this weapon lvl
-	public int levelXp = 100; 	// total xp required to advance to next weapon lvl
+	public int levelXp; 		// total xp required to advance to next weapon lvl
+	List<int> levelXps = new List<int> () {
+		0,
+		100,
+		500,
+		1200,
+		3000,
+		6000,
+	};
 
 	void Start() {
+		// initialize weapon level and level-up data
+		damage = damageLevels [level - 1]; 	// current level damage done
+		levelXp = levelXps [level]; 		// next level XP requirement
+
 		// put together visuals list for updating on level ups
 		levelSprites = new List<Sprite> () {
 			level1Sprite,
@@ -60,19 +80,23 @@ public class Weapon : MonoBehaviour {
 	// weapon leveling
 	public void AddXP (int addedXp) {
 		currentXp += addedXp;
-		if (currentXp > levelXp) LevelUp ();
+		// TODO: handle leveling up multiple times with large dose of XP
+		if (currentXp > levelXps[level]) LevelUp ();
 	}
 	public void LevelUp() {
-		// augment stats
-		this.level++;
+		// augment weapon level unless reached level cap
+		level = Mathf.Min(level + 1, levelXps.Count);
 
 		// spend the XP cost to level up
-		currentXp -= levelXp;
+		currentXp -= levelXps[level];
+		// raise level XP cost to next level (read incl in inspector)
+		levelXp = levelXps[level];
 
-		// select a new visual if available
-		if (this.level < levelSprites.Count) {
-			this.GetComponent<SpriteRenderer> ().sprite = levelSprites [this.level - 1];
-		}
+		// increase stats
+		damage = damageLevels[level - 1];
+
+		// select a new visual
+		this.GetComponent<SpriteRenderer> ().sprite = levelSprites [level - 1];
 
 		// build a new name
 		Rename ();
