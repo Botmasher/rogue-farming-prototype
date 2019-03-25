@@ -192,7 +192,7 @@ public class Plot : MonoBehaviour {
 		// planted rogue ready for harvest
 		if (isHarvestable) {
 
-			Debug.Log("Trying to harvest rogue " + rogue.name + " with health " + rogue.health);
+			Debug.Log("Trying to harvest rogue " + rogue.name + " with health " + rogue.maxHealth);
 
 			// stop displaying the plot headstone
 			stoneRenderer.Hide ();

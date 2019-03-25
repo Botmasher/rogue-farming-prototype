@@ -8059,7 +8059,7 @@ Prefab:
     - target: {fileID: 114470021863263748, guid: 417d623cb9a64416d998885e4eca9235,
         type: 2}
       propertyPath: speed
-      value: 2
+      value: 4.28
       objectReference: {fileID: 0}
     - target: {fileID: 114470021863263748, guid: 417d623cb9a64416d998885e4eca9235,
         type: 2}

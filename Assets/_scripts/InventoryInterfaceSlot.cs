@@ -193,8 +193,8 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 		} else if (item.GetComponent<Rogue> () != null) {
 			Rogue rogue = item.GetComponent<Rogue> ();
 			formattedStats += "<b>" + rogue.name + "</b>\n";
-			formattedStats += "health: " + rogue.health + "\n";
-			formattedStats += "armor: " + rogue.armor + (rogue.armorEquipment ? " <b> + " + rogue.armorEquipment.GetComponent<Armor> ().defense +"</b>\n" : "\n");
+			formattedStats += "health: " + rogue.maxHealth + "\n";
+			formattedStats += "defense: " + rogue.defense + (rogue.armorEquipment ? " <b> + " + rogue.armorEquipment.GetComponent<Armor> ().defense +"</b>\n" : "\n");
 			formattedStats += "attack: " + rogue.attack + (rogue.weaponEquipment ? " <b> + " + rogue.weaponEquipment.GetComponent<Weapon> ().damage +"</b>\n" : "\n");
 			formattedStats += "agility: " + rogue.agility + "\n";
 			formattedStats += "thievery: " + rogue.thievery + "\n";

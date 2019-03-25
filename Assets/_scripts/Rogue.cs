@@ -17,17 +17,17 @@ public class Rogue : MonoBehaviour {
 	// - lockout period prohibited clean manual playthrough
 
 	// main stat for rogue life - deplete this to end planting
-	public int health;			// updated while adventuring
-	int maxHealth = 3; 			// intended to be read when brought back to life - ? updated through stats or items
+	int health;					// updated while adventuring
+	public int maxHealth = 3; 	// intended to be read when brought back to life - ? updated through stats or items
 	public bool isAlive = true;
 
 	// note which object killed rogue this run - useful for epitaph ui
 	public string deathDealerName;
 	public string deathDealerType;
 
-	// check for currently acting
-	// NOTE: if updated after frame, cannot do async obstacles - consider coroutine for life/death actions like taking damage
-	public bool isBusy = false;
+//	// check for currently acting rogue
+//	// NOTE: if updated after frame, cannot do async obstacles - consider coroutine for life/death actions like taking damage
+//	public bool isBusy = false;
 
 	// TODO: tighten storing vs equipping (see Equip and Unequip methods)
 	// 	- some things work with armor and weapons by referencing the dictionary, others the go vars
@@ -44,28 +44,29 @@ public class Rogue : MonoBehaviour {
 	public GameObject armorEquipment;
 	public GameObject weaponEquipment;
 
-	// TODO: generate unique name for each rogue
+	// unique name generated for each rogue - see GenerateName below
 	public string name;
 
+	// initialized stats leveled up each pass through castle
+	public int attack = 0;
+	public int defense = 0;
+	public int thievery = 0;
+	public int agility = 0;
+
 	// determine skills gained in castle for boosts
-	int enemyPoints = 0;
-	int treasurePoints = 0;
-	int hazardPoints = 0;
+	// 	- enemy used to upgrade health, attack, defense, equipment
+	// 	- hazard used to upgrade agility, health
+	// 	- luck used to upgrade luck
+	// 	- treasure collected this pass and brought to reaper
+	// 	- luck augmented from successful luck events like evasion or treasure opening
+	Dictionary<string, float> runPoints = new Dictionary<string, float> () {
+		{ "enemy", 0 },
+		{ "treasure", 0 },
+		{ "hazard", 0 },
+		{ "luck", 0 }
+	};
 
-	// simulate time-taking countdown for rogue actions
-	int actionCounter = 0;
-
-	// starting stats - level up as fight through castles
-	public int armor = 1;
-	public int thievery = 1;
-	public int attack = 1;
-	public int agility = 1;
-
-	// collected this pass through castle and brought to reaper
-	int treasure = 0;
-
-	// factor pushing events in your favor
-	// TODO go through lucky events and add to luck meter
+	// factor pushing various events in rogue's favor
 	public float luck = 0.05f;
 
 	void Start () {
@@ -233,30 +234,103 @@ public class Rogue : MonoBehaviour {
 		return true;
 	}
 
-	// toggle health, life checks and epitaph ui info
+	// reset health, life checks and epitaph ui info
 	public void Revive() {
+		// update character life data
 		isAlive = true;
 		deathDealerName = "";
 		deathDealerType = "";
 		health = maxHealth;
+
+		// clear out points gathered on the last run
+		runPoints["enemy"] = 0;
+		runPoints["treasure"] = 0;
+		runPoints["hazard"] = 0;
+		runPoints["luck"] = 0;
 	}
+
+	// flag as dead, upgrade stats, add epitaph ui info
 	public void Die(string killerName, string killerType) {
 		// tally points before death
 		if (isAlive) {
+
+			// set dead
+			isAlive = false;
+
 			// TODO: set stats based on successful actions this run
 			//  - castle keeps memory of augments gained this run
 			// 	- OR rogue keeps then empties them into skills
 
-			weaponEquipment.GetComponent<Weapon>().AddXP (110);
-			armorEquipment.GetComponent<Armor>().AddXP (110);
+			/*
+			 * 	Upgrade skills based on run stats
+			 */
+			int totalPoints = 0;
+
+			int enemyPoints = Mathf.RoundToInt (runPoints["enemy"]);
+			int treasurePoints = Mathf.RoundToInt (runPoints ["treasure"]);
+			int hazardPoints = Mathf.RoundToInt (runPoints ["hazard"]);
+
+			totalPoints += enemyPoints > 0 ? 1 : 0;
+			totalPoints += hazardPoints > 0 ? 1 : 0;
+			totalPoints += treasurePoints > 0 ? 1 : 0;
+			Debug.Log ("Perished rogue has " + totalPoints + " points to spend");
+
+			// TODO: decide where to spend points through UI
+			//
+			// here simulate arbitrarily picking skills
+			List<string> skillNames = new List<string> {"attack", "defense", "health", "thievery", "agility"};
+			//
+			// spend each available point on a random skill until all spent
+			while (totalPoints > 0) {
+				string skillName = skillNames[Random.Range(0, skillNames.Count)];
+				switch (skillName) {
+					case "attack":
+						Debug.Log ("Increasing attack...");
+						attack++;
+						break;
+					case "defense":
+						Debug.Log ("Increasing defense...");
+						defense++;
+						break;
+					case "health":
+						Debug.Log ("Increasing health...");
+						maxHealth++;
+						break;
+					case "thievery":
+						Debug.Log ("Increasing thievery...");
+						thievery++;
+						break;
+					case "agility":
+						Debug.Log ("Increasing agility...");
+						agility++;
+						break;
+					default:
+						break;
+				}
+				totalPoints--;
+			}
+
+			// luck goes up on its own
+			float luckPoints = runPoints ["luck"];
+			luck += luckPoints * 0.01f;
+
+			// upgrade equipment based on run stats
+			int equipmentPoints = enemyPoints * 20;
+			weaponEquipment.GetComponent<Weapon>().AddXP (equipmentPoints);
+			armorEquipment.GetComponent<Armor>().AddXP (equipmentPoints);
+
+			Debug.Log (string.Format ("Increased armor by {0}, weapon by {0}", equipmentPoints, equipmentPoints));
+
+
+			// TODO: display UI
+
+
+
+			// remember what defeated rogue for epitaph text
+			deathDealerName = killerName;
+			deathDealerType = killerType;
+			//Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
 		}
-
-		isAlive = false;
-		health = maxHealth;
-
-		deathDealerName = killerName;
-		deathDealerType = killerType;
-		//Debug.Log (string.Format("Rogue {0} has perished in the Castle!", this.name));
 	}
 
 	/* Adventuring through generated obstacles */
@@ -273,10 +347,15 @@ public class Rogue : MonoBehaviour {
 		// roll for a zero-to-one plus luck chance for immediate evasion
 		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
 
-		// attempt to run away from a low-level enemy
-		if ((enemyType == "enemy" || enemyType == "miniBoss") && rollPlusLuck > 0.8f) {
+		// attempt to run away from non-boss enemy
+		// 	?- also try to evade "miniBoss"
+		if (enemyType == "enemy" && rollPlusLuck > 0.8f) {
 			Debug.Log (string.Format("{0} ran away from a {1}", this.name, enemyName));
-			this.DefeatEnemy(enemyAttack);
+
+			// store skills gained
+			runPoints["enemy"] += (0.5f * enemyAttack);
+			runPoints["luck"] += rollPlusLuck;
+
 			return;
 		}
 
@@ -287,54 +366,60 @@ public class Rogue : MonoBehaviour {
 	// handle enemy encounter until encounter resolves (rogue kills/evades enemy, enemy kills rogue)
 	void CycleAttackDefend (string enemyName, string enemyType, int enemyAttack, int enemyHealth) {
 		// roll again so not all events in a single turn are lucky or unlucky
-		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
+		float rollPlusLuck = Random.Range (0f, 1f + luck);
+
+		// rogue died on previous cycle - end encounter
+		if (!isAlive) {
+			return;
+		}
 
 		// attack enemy - leave a small chance to miss
 		if (rollPlusLuck > 0.08f) {
-			enemyHealth -= this.attack;
-			Debug.Log (string.Format("Did {0} damage to enemy {1} - {2}/{3}", this.attack, enemyName, enemyHealth, enemyAttack));
+			// deal damage with base attack plus weapon stats
+			int rogueAttackStrength = Mathf.RoundToInt (
+				attack + (attack * luck) + weaponEquipment.GetComponent<Weapon> ().damage
+			);
+			enemyHealth -= Mathf.Max(0, rogueAttackStrength);
+			Debug.Log (string.Format("Did {0} damage to enemy {1}: {2}/{3}", rogueAttackStrength, enemyName, enemyHealth, enemyAttack));
 		} else {
-			Debug.Log (string.Format("Missed enemy {0} - {1}/{2}", enemyName, enemyHealth, enemyAttack));
+			Debug.Log (string.Format("Missed enemy {0}: {1}/{2}", enemyName, enemyHealth, enemyAttack));
 		}
 
 		// finish off dead enemy
 		if (enemyHealth <= 0) {
-			Debug.Log (string.Format("{0} defeated a {1}!", this.name, enemyName));
-			this.DefeatEnemy (enemyAttack);
+			Debug.Log (string.Format("{0} defeated a {1}!", name, enemyName));
+			// add to skills gained
+			runPoints["enemy"] += enemyAttack;
 			return;
 		}
 
-		// enemy attacks back - leave a small chance to evade non-bosses
-		if (rollPlusLuck > 0.1f || enemyType != "enemy") {
-			int attackStrength = Mathf.RoundToInt(enemyAttack - (enemyAttack * this.luck) - this.armor);
-			this.health -= attackStrength;
-			// chip away at rogue armor over time instead of knocking it all off
-			this.armor = Mathf.Clamp(
-				Mathf.RoundToInt(this.armor + (this.armor * this.luck) - (attackStrength * 0.1f)),
-				0,
-				this.armor
+		// enemy counterattack
+		// leave a small chance to evade non-bosses
+		if (rollPlusLuck < 0.1f && enemyType == "enemy") {
+			Debug.Log (string.Format("Evaded enemy attack - rogue health remains at {0}", health));
+		}
+		// unevaded or unevadable
+		else {
+			// defend with armor - use its stats to diminish damage taken
+			int enemyAttackStrength = Mathf.RoundToInt(
+				enemyAttack - (enemyAttack * luck) - defense - armorEquipment.GetComponent<Armor> ().defense
 			);
-			Debug.Log (string.Format("Enemy attacked - rogue health dropped to {0}", this.health));
-		} else {
-			Debug.Log (string.Format("Evaded enemy attack - rogue health remains at {0}", this.health));
+			// subtract any positive amount of damage done from rogue health
+			health -= Mathf.Max (0, enemyAttackStrength);
+			Debug.Log (string.Format("Enemy attacked - rogue health dropped to {0}", health));
 		}
 
-		if (this.health <= 0) {
+		// rogue perishes once health done
+		if (health <= 0) {
 			Die (enemyName, enemyType);
 		}
 
 		// take another turn if enemy still alive
-		if (enemyHealth > 0 && this.health > 0) {
+		if (enemyHealth > 0 && health > 0) {
 			Debug.Log ("Taking another attack-defend turn against enemy " + enemyName);
 			CycleAttackDefend (enemyName, enemyType, enemyAttack, enemyHealth);
 		}
 		return;
-	}
-
-	// unassign and reset currently confronted enemy
-	void DefeatEnemy (int enemyPoints) {
-		// store skills gained
-		this.enemyPoints += enemyPoints;
 	}
 
 	// unassign and reset treasure being opened
@@ -346,19 +431,20 @@ public class Rogue : MonoBehaviour {
 		Debug.Log (string.Format("Rogue {0} is struggling to open a {1}", this.name, treasureName));
 
 		// roll for a zero-to-one plus luck chance
-		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
+		float rollPlusLuck = Random.Range (0f, 1f + luck);
 
 		// be sly or lucky enough to open
 		if ((this.thievery >= treasureTrickiness) || (rollPlusLuck > (0.85f + (treasureTrickiness/100)))) {
-			this.treasure += treasureTrickiness;
-			Debug.Log (string.Format ("Pried it! The {0} gold ups rogue treasure to {1}", treasureTrickiness, this.treasure));
+
+			// store loot and skills gained
+			runPoints["treasure"] += treasureTrickiness;
+			runPoints["luck"] += rollPlusLuck;
+
+			Debug.Log (string.Format ("Pried it! The {0} gold ups rogue treasure to {1}", treasureTrickiness, runPoints["treasure"]));
+
 		} else {
 			Debug.Log ("Failed to crack it open. Not yet thieverious enough for its secrets.");
 		}
-
-		// store loot and skills gained
-		this.treasurePoints += treasureTrickiness;
-		this.treasure += treasureTrickiness;
 	}
 
 	// unassign and reset hazard facing rogue
@@ -373,10 +459,17 @@ public class Rogue : MonoBehaviour {
 		float rollPlusLuck = Random.Range (0f, 1f + this.luck);
 
 		// be agile or lucky enough to evade
-		if ((this.agility >= hazardAttack) || (rollPlusLuck > (0.3f + (hazardAttack/100)))) {
+		if ((agility > hazardAttack) || (rollPlusLuck > (0.3f + (hazardAttack/100)))) {
 			Debug.Log (string.Format("Smoothly sidestepped it! Health still {0}", this.health));
+			return;
+
 		} else {
-			this.health -= hazardAttack;
+			// determine hazard damage
+			int hazardAttackStrength = Mathf.RoundToInt(
+				hazardAttack - rollPlusLuck * (defense - armorEquipment.GetComponent<Armor> ().defense)
+			);
+			// decrease health by calculated damage
+			this.health -= Mathf.Max(0, hazardAttackStrength);
 			Debug.Log (string.Format("Stumbled into the {0} - health fell to {1}", hazardName, this.health));
 		}
 
@@ -386,6 +479,6 @@ public class Rogue : MonoBehaviour {
 		}
 
 		// store skills gained
-		this.hazardPoints += hazardAttack;
+		runPoints["hazard"] += hazardAttack;
 	}
 }

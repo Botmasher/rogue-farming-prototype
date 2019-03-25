@@ -80,7 +80,9 @@ public class Weapon : MonoBehaviour {
 	// weapon leveling
 	public void AddXP (int addedXp) {
 		currentXp += addedXp;
+
 		// TODO: handle leveling up multiple times with large dose of XP
+
 		if (currentXp > levelXps[level]) LevelUp ();
 	}
 	public void LevelUp() {
