@@ -47,11 +47,16 @@ public class Rogue : MonoBehaviour {
 	// unique name generated for each rogue - see GenerateName below
 	public string name;
 
+	// upgraded stats info to feed to upgrade interface
+	public string runUpgradeText;
+
 	// initialized stats leveled up each pass through castle
 	public int attack = 0;
 	public int defense = 0;
 	public int thievery = 0;
 	public int agility = 0;
+	// factor pushing various events in rogue's favor
+	public float luck = 0.05f;
 
 	// determine skills gained in castle for boosts
 	// 	- enemy used to upgrade health, attack, defense, equipment
@@ -66,16 +71,18 @@ public class Rogue : MonoBehaviour {
 		{ "luck", 0 }
 	};
 
-	// factor pushing various events in rogue's favor
-	public float luck = 0.05f;
-
 	void Start () {
 		// pick a new rogue name
 		// TODO: append generation on harvest / when calling Live()
 		name = GenerateName ();
 		gameObject.name = name;
 
+		// set stats
 		health = maxHealth;
+
+		// hide the upgrades ui
+		// NOTE: action taken by each rogue!
+		//rogueUpgradeUI.SetActive(false);
 
 		// store starting equipment
 		if (weaponEquipment != null) equipment["weapon"] = weaponEquipment;
@@ -279,10 +286,12 @@ public class Rogue : MonoBehaviour {
 			//
 			// here simulate arbitrarily picking skills
 			List<string> skillNames = new List<string> {"attack", "defense", "health", "thievery", "agility"};
+			List<string> selectedSkills = new List<string> ();
 			//
 			// spend each available point on a random skill until all spent
 			while (totalPoints > 0) {
 				string skillName = skillNames[Random.Range(0, skillNames.Count)];
+				selectedSkills.Add (skillName);
 				switch (skillName) {
 					case "attack":
 						Debug.Log ("Increasing attack...");
@@ -315,16 +324,25 @@ public class Rogue : MonoBehaviour {
 			luck += luckPoints * 0.01f;
 
 			// upgrade equipment based on run stats
-			int equipmentPoints = enemyPoints * 20;
-			weaponEquipment.GetComponent<Weapon>().AddXP (equipmentPoints);
-			armorEquipment.GetComponent<Armor>().AddXP (equipmentPoints);
+			int equipmentPoints = enemyPoints * 2;
+			Weapon weapon = weaponEquipment.GetComponent<Weapon> ();
+			Armor armor = armorEquipment.GetComponent<Armor> ();
+			weapon.AddXP (equipmentPoints);
+			armor.AddXP (equipmentPoints);
 
 			Debug.Log (string.Format ("Increased armor by {0}, weapon by {0}", equipmentPoints, equipmentPoints));
 
 
-			// TODO: display UI
-
-
+			// format text for ui - displayed when set active by Plot on rogue harvest
+			string formattedStats = "<size=105>Rogue upgraded!</size>\n";
+			formattedStats += "<size=72>";
+			foreach (string selectedSkill in selectedSkills) {
+				formattedStats += "+1 to <b>" + selectedSkill + "</b>\n";
+			}
+			formattedStats += "<b>Weapon</b> gained <b>" + equipmentPoints + "</b>xp\n";
+			formattedStats += "<b>Armor</b> gained <b>" + equipmentPoints + "</b>xp\n";
+			formattedStats += "</size>";
+			runUpgradeText = formattedStats;
 
 			// remember what defeated rogue for epitaph text
 			deathDealerName = killerName;

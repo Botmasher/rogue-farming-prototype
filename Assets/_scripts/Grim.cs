@@ -28,6 +28,9 @@ public class Grim : MonoBehaviour {
 	// environment interaction
 	//private GameObject focusedPlot; // farm plot for planting, gathering or info
 
+	// interface for displaying upgrade info - filled with Rogue run text in Plot 
+	public GameObject rogueUpgradeUI;
+
 	// item held in grim hands
 	public GameObject currentItem;
 
@@ -205,9 +208,16 @@ public class Grim : MonoBehaviour {
 		// attempt to harvest a plot
 		if (groundTile != null && groundTile.tag == "FarmPlot") {
 			Plot farmPlot = groundTile.GetComponent<Plot> ();
-			farmPlot.HarvestRogue ();
 
-			Debug.Log (string.Format ("Successfully swiped a farm plot named {0}", farmPlot.name));
+			// set off harvest checks and actions - get back rogue upgrade string
+			string formattedUpgradesText = farmPlot.HarvestRogue ();
+
+			// show rogue upgraded stats - closed with event trigger set in inspector
+			// use empty string as measurement of whether rogue successfully harvested
+			if (formattedUpgradesText != "") {
+				rogueUpgradeUI.SetActive (true);
+				rogueUpgradeUI.GetComponentInChildren<UnityEngine.UI.Text> ().text = formattedUpgradesText;
+			}
 		}
 
 		// TODO: also take a swipe at enemy if one present

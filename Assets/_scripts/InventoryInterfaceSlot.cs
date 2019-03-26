@@ -183,12 +183,14 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 			formattedStats += "<b>" + weapon.name + "</b>\n";
 			formattedStats += "lvl: " + weapon.level + "\n";
 			formattedStats += "dmg: " + weapon.damage + "\n";
+			formattedStats += "xp: " + weapon.currentXp + "/" + weapon.levelXp;
 
 		} else if (item.GetComponent<Armor> () != null) {
 			Armor armor = item.GetComponent<Armor> ();
 			formattedStats += "<b>" + armor.name + "</b>\n";
 			formattedStats += "lvl: " + armor.level + "\n";
 			formattedStats += "def: " + armor.defense + "\n";
+			formattedStats += "xp: " + armor.currentXp + "/" + armor.levelXp;
 
 		} else if (item.GetComponent<Rogue> () != null) {
 			Rogue rogue = item.GetComponent<Rogue> ();
@@ -198,7 +200,7 @@ public class InventoryInterfaceSlot : MonoBehaviour {
 			formattedStats += "attack: " + rogue.attack + (rogue.weaponEquipment ? " <b> + " + rogue.weaponEquipment.GetComponent<Weapon> ().damage +"</b>\n" : "\n");
 			formattedStats += "agility: " + rogue.agility + "\n";
 			formattedStats += "thievery: " + rogue.thievery + "\n";
-			formattedStats += "luck: " + rogue.luck + "\n";
+			formattedStats += "luck: " + rogue.luck;
 
 			// TODO: show armor and weapon info if those are equipped
 			// 	- remove some rogue stats?

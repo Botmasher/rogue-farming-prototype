@@ -187,8 +187,8 @@ public class Plot : MonoBehaviour {
 		return false;
 	}
 
-	// retrieve rogue from plot and reset growth
-	public bool HarvestRogue () {
+	// pop rogue from plot, reset growth and get rogue runthrough skills text
+	public string HarvestRogue () {
 		// planted rogue ready for harvest
 		if (isHarvestable) {
 
@@ -215,10 +215,12 @@ public class Plot : MonoBehaviour {
 			// pop rogue pickup back into world
 			rogueObject.GetComponent<Rigidbody> ().AddForce(Vector3.up * 30f);
 
-			return true;
+			// return upgraded stats to display on UI
+			return rogueObject.GetComponent<Rogue> ().runUpgradeText;
 		}
 
-		return false;
+		// return no upgraded stats to display
+		return "";
 	}
 
 
