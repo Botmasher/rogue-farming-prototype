@@ -86,7 +86,7 @@ public class Weapon : MonoBehaviour {
 		if (level >= levelXps.Count) {
 			currentXp = levelXps[levelXps.Count - 1];
 		}
-		else if (currentXp > levelXps [level - 1]) {
+		else if (currentXp >= levelXps [level]) {
 			LevelUp ();
 		}
 	}
@@ -103,10 +103,10 @@ public class Weapon : MonoBehaviour {
 		// increase stats
 		damage = damageLevels[level - 1];
 
-		// select a new visual
+		// select new visual
 		this.GetComponent<SpriteRenderer> ().sprite = levelSprites [level - 1];
 
-		// build a new name
+		// build new name
 		Rename ();
 	}
 

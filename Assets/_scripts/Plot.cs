@@ -45,6 +45,13 @@ public class Plot : MonoBehaviour {
 		}
 	}
 
+	// sound effects
+	AudioSource audio; 				// store reference to audio player component
+	public AudioClip sfxPlant;
+	public AudioClip sfxGrow;
+	public AudioClip sfxHarvest;
+	public AudioClip sfxEpitaph;
+
 	// harvest check
 	bool isHarvestable = false;
 
@@ -55,6 +62,9 @@ public class Plot : MonoBehaviour {
 	void Awake () {
 		// get epitaph ui reference
 		epitaph = GameObject.FindGameObjectWithTag("Epitaph");
+
+		// reference to audio player
+		audio = GetComponent<AudioSource> ();
 
 		// grab child renderer components
 		stoneRenderer = GetComponentInChildren<PlotStone> ();
@@ -98,9 +108,17 @@ public class Plot : MonoBehaviour {
 			// show a harvestable mark on the plot headstone
 			stoneRenderer.Mark ();
 
+			// play sfx marking epitaph
+			audio.clip = sfxEpitaph;
+			audio.Play ();
+
 			Debug.Log ("Setting nonalive/finished rogue to be harvestable!");
 			return;
 		}
+
+		// play sfx
+		audio.clip = sfxGrow;
+		audio.Play ();
 
 		// advance the growth stage
 		growthStageCurrent++;
@@ -164,6 +182,10 @@ public class Plot : MonoBehaviour {
 			// attach incoming rogue to this plot
 			SetRogue (newRogue);
 
+			// play sfx
+			audio.clip = sfxPlant;
+			audio.Play ();
+
 			// display the plot headstone
 			stoneRenderer.Show ();
 
@@ -188,11 +210,15 @@ public class Plot : MonoBehaviour {
 	}
 
 	// pop rogue from plot, reset growth and get rogue runthrough skills text
-	public string HarvestRogue () {
+	public GameObject HarvestRogue () {
 		// planted rogue ready for harvest
 		if (isHarvestable) {
 
 			Debug.Log("Trying to harvest rogue " + rogue.name + " with health " + rogue.maxHealth);
+
+			// play sfx
+			audio.clip = sfxHarvest;
+			audio.Play ();
 
 			// stop displaying the plot headstone
 			stoneRenderer.Hide ();
@@ -212,15 +238,12 @@ public class Plot : MonoBehaviour {
 			// grab reactivated rogue item
 			GameObject rogueObject = UnsetRogue ();
 
-			// pop rogue pickup back into world
-			rogueObject.GetComponent<Rigidbody> ().AddForce(Vector3.up * 30f);
-
-			// return upgraded stats to display on UI
-			return rogueObject.GetComponent<Rogue> ().runUpgradeText;
+			// return harvested rogue
+			return rogueObject;
 		}
 
-		// return no upgraded stats to display
-		return "";
+		// no rogue to return
+		return null;
 	}
 
 

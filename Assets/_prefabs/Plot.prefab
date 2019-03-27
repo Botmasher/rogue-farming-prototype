@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4725733149690782}
   - component: {fileID: 114843320798975584}
   - component: {fileID: 65628707782467244}
+  - component: {fileID: 82858312630324936}
   m_Layer: 0
   m_Name: Plot
   m_TagString: FarmPlot
@@ -176,6 +177,86 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 9.4, y: 9.4, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!82 &82858312630324936
+AudioSource:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1239144997126692}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.15
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 1
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!114 &114243010271645010
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -234,6 +315,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rogue: {fileID: 0}
   castle: {fileID: 114724007601657132}
+  sfxPlant: {fileID: 8300000, guid: 7204ca16960454e919c78827fea002da, type: 3}
+  sfxGrow: {fileID: 8300000, guid: f4c6252918cc34d85b41f533fa23fc78, type: 3}
+  sfxHarvest: {fileID: 8300000, guid: 86c23649f7c424f2e90ed934c1f77597, type: 3}
+  sfxEpitaph: {fileID: 8300000, guid: 400699a57209a4304a4e1ad4f7acd546, type: 3}
 --- !u!114 &114888841313988178
 MonoBehaviour:
   m_ObjectHideFlags: 1

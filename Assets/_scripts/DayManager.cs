@@ -28,6 +28,9 @@ public class DayManager : MonoBehaviour {
 	float secondsPerHour = 4f; 		// how long a game hour lasts in realtime
 	int hoursPerDay = 12; 			// divide day into 0-n (n exclusive) hours range
 
+	// interface for displaying time info
+	public GameObject dayUI;
+
 	// listener events to subscribe/announce and callbacks to run
 	Dictionary<int, List<Action>> events = new Dictionary<int, List<Action>> ();
 
@@ -68,19 +71,9 @@ public class DayManager : MonoBehaviour {
 
 		// an hour has passed
 		if (secondsCounter >= secondsPerHour) {
-			hour++;
-			secondsCounter = 0f;
+			PassHour ();
 
-			// a full day has passed
-			if (hour >= hoursPerDay) {
-				days++;
-				hour = 0;
-			}
-
-			// run hourly callbacks
-			Announce (hour);
-
-			//lightRotationDifference = 360f / hoursPerDay;
+			// set the new angle for sunlight
 			lightRotationTarget = Quaternion.Euler(Vector3.left * degreesPerHour * hour);
 		}
 
@@ -88,6 +81,25 @@ public class DayManager : MonoBehaviour {
 		if (light.transform.rotation != lightRotationTarget) {
 			light.transform.rotation = Quaternion.Lerp(light.transform.rotation, lightRotationTarget, Time.deltaTime * speed);
 		}
+	}
+
+	// count up one hour, run hourly events, cycle day if necessary
+	void PassHour() {
+		// pass one hour and reset seconds
+		hour++;
+		secondsCounter = 0f;
+
+		// pass a full day
+		if (hour >= hoursPerDay) {
+			days++;
+			hour = 0;
+		}
+
+		// run hourly callbacks
+		Announce (hour);
+
+		// update the daytimer UI
+		dayUI.GetComponentInChildren<UnityEngine.UI.Text> ().text = "Day " + (days + 1) + "  hour " + (hour + 1);
 	}
 
 	// event notification

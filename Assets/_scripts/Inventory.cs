@@ -29,6 +29,9 @@ public class Inventory : MonoBehaviour {
 	// NOTE: keep list in sync with visualization list
 	public InventoryInterface inventoryUI;
 
+	// sound effects
+	public AudioClip sfxAttach;
+	public AudioClip sfxUnattach;
 
 	/* Interact with inventory on input */
 
@@ -168,6 +171,11 @@ public class Inventory : MonoBehaviour {
 			// reset inventory interface
 			inventoryUI.RefreshSlots (items);
 
+			// play sfx
+			// NOTE: currently detaching every time rogue picked up
+			//GetComponent<AudioSource> ().clip = sfxUnattach;
+			//GetComponent<AudioSource> ().Play ();
+
 			// successfully added rogue and equipment
 			return true;
 		}
@@ -203,10 +211,14 @@ public class Inventory : MonoBehaviour {
 				items.RemoveAt (sourceIndex);
 				inventoryUI.RefreshSlots (items);
 
+				// TODO: stack showing attachments in inventory slot
+
+				// play sfx
+				GetComponent<AudioSource> ().clip = sfxAttach;
+				GetComponent<AudioSource> ().Play ();
+
 				// return the index of the target if the two were combined
 				return targetIndex;
-
-				// TODO: stack showing attachments in inventory slot
 			}
 		}
 		// return the index of the selected item if unable to attach

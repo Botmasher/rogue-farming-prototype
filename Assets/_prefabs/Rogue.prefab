@@ -198,8 +198,7 @@ MonoBehaviour:
   armorEquipment: {fileID: 1996854865968082}
   weaponEquipment: {fileID: 1354628702524164}
   name: Asdf
-  rogueUpgradeUI: {fileID: 1234724277033624, guid: ff55ed08a72f64cbda124285764b338e,
-    type: 2}
+  runUpgradeText: 
   attack: 1
   defense: 0
   thievery: 1

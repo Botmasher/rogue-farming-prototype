@@ -47,6 +47,9 @@ public class Rogue : MonoBehaviour {
 	// unique name generated for each rogue - see GenerateName below
 	public string name;
 
+	// amount of coin in pockets
+	public int treasure = 0;
+
 	// upgraded stats info to feed to upgrade interface
 	public string runUpgradeText;
 
@@ -161,24 +164,28 @@ public class Rogue : MonoBehaviour {
 		// make sure the item is a piece of weapon or armor equipment
 		// and attach if a spot is available within the rogue
 
+		bool didAttach;
+
 		// attach weapon item to behavior and object
-		if (item.GetComponent<Weapon> () && (equipment["weapon"] == null || switchOut)) {
-			equipment["weapon"] = item;
+		if (item.GetComponent<Weapon> () && (equipment ["weapon"] == null || switchOut)) {
+			equipment ["weapon"] = item;
 			weaponEquipment = item;
 			item.transform.SetParent (this.transform);
-			return true;
+			didAttach = true;
 		}
 		// attach armor item to behavior and object
-		else if (item.GetComponent<Armor> () && (equipment["armor"] == null || switchOut)) {
-			equipment["armor"] = item;
+		else if (item.GetComponent<Armor> () && (equipment ["armor"] == null || switchOut)) {
+			equipment ["armor"] = item;
 			armorEquipment = item;
 			item.transform.SetParent (this.transform);
-			return true;
+			didAttach = true;
 		}
 		// unequippable item 
 		else {
-			return false;
+			didAttach = false;
 		}
+
+		return didAttach;
 	}
 
 	// remove item from rogue equipment spot - for Grim inventory
@@ -209,6 +216,13 @@ public class Rogue : MonoBehaviour {
 		return equipment ["armor"];
 	}
 
+	// take treasure
+	public int Plunder() {
+		// fetch amount and empty pockets
+		int plunderedTreasure = treasure;
+		treasure = 0;
+		return plunderedTreasure;
+	}
 
 	/* Castle interaction */
 
@@ -271,7 +285,7 @@ public class Rogue : MonoBehaviour {
 			/*
 			 * 	Upgrade skills based on run stats
 			 */
-			int totalPoints = 0;
+			int totalPoints = 1; 	// leave minimum one point to spend
 
 			int enemyPoints = Mathf.RoundToInt (runPoints["enemy"]);
 			int treasurePoints = Mathf.RoundToInt (runPoints ["treasure"]);
@@ -280,6 +294,10 @@ public class Rogue : MonoBehaviour {
 			totalPoints += enemyPoints > 0 ? 1 : 0;
 			totalPoints += hazardPoints > 0 ? 1 : 0;
 			totalPoints += treasurePoints > 0 ? 1 : 0;
+
+			// update amount in pockets that can be plundered
+			treasure += treasurePoints;
+
 			Debug.Log ("Perished rogue has " + totalPoints + " points to spend");
 
 			// TODO: decide where to spend points through UI
@@ -324,7 +342,7 @@ public class Rogue : MonoBehaviour {
 			luck += luckPoints * 0.01f;
 
 			// upgrade equipment based on run stats
-			int equipmentPoints = enemyPoints * 2;
+			int equipmentPoints = enemyPoints * 10;
 			Weapon weapon = weaponEquipment.GetComponent<Weapon> ();
 			Armor armor = armorEquipment.GetComponent<Armor> ();
 			weapon.AddXP (equipmentPoints);
@@ -334,8 +352,8 @@ public class Rogue : MonoBehaviour {
 
 
 			// format text for ui - displayed when set active by Plot on rogue harvest
-			string formattedStats = "<size=105>Rogue upgraded!</size>\n";
-			formattedStats += "<size=72>";
+			string formattedStats = "<size=86><color=yellow><i>Rogue upgraded</i></color></size>\n";
+			formattedStats += "<size=62>";
 			foreach (string selectedSkill in selectedSkills) {
 				formattedStats += "+1 to <b>" + selectedSkill + "</b>\n";
 			}

@@ -87,7 +87,7 @@ public class Armor : MonoBehaviour {
 		if (level >= levelXps.Count) {
 			currentXp = levelXps[levelXps.Count - 1];
 		}
-		else if (currentXp > levelXps [level - 1]) {
+		else if (currentXp >= levelXps [level]) {
 			LevelUp ();
 		}
 	}

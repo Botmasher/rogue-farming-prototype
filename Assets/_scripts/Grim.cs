@@ -28,11 +28,21 @@ public class Grim : MonoBehaviour {
 	// environment interaction
 	//private GameObject focusedPlot; // farm plot for planting, gathering or info
 
+	// sound files
+	public AudioClip sfxPickup;
+	public AudioClip sfxSwipe;
+	public AudioClip sfxUse;
+
 	// interface for displaying upgrade info - filled with Rogue run text in Plot 
 	public GameObject rogueUpgradeUI;
+	// interface for displaying treasure info
+	public GameObject treasureUI;
 
 	// item held in grim hands
 	public GameObject currentItem;
+
+	// amount of coin in pockets - taken from rogues
+	public int treasure = 0;
 
 	// raycasting
 	RaycastHit hit;
@@ -47,6 +57,9 @@ public class Grim : MonoBehaviour {
 
 		// store body for movement through physics forces
 		rigidbody = GetComponent<Rigidbody> ();
+
+		// show current coinage in UI
+		DisplayTreasure ();
 	}
 		
 	void Update () {
@@ -139,6 +152,8 @@ public class Grim : MonoBehaviour {
 
 		// place item in inventory
 		bool didAdd = inventory.AddItem (pickupItem);
+		GetComponent<AudioSource> ().clip = sfxPickup;
+		GetComponent<AudioSource> ().Play ();
 
 		// did not fit - have grim toss the pickup
 		if (!didAdd) {
@@ -174,6 +189,10 @@ public class Grim : MonoBehaviour {
 		// unable to use item - ditch it in the world
 		// TODO: leave item in / put item back in inventory
 		if (!didUse) {
+			// play pop out sfx
+			GetComponent<AudioSource> ().clip = sfxUse;
+			GetComponent<AudioSource> ().Play ();
+
 			// reactivate as independent object in world
 			usedItem.transform.SetParent (null);
 			usedItem.SetActive (true);
@@ -202,6 +221,10 @@ public class Grim : MonoBehaviour {
 	}
 
 	void HandleSwipe () {
+		// play sfx
+		GetComponent<AudioSource> ().clip = sfxSwipe;
+		GetComponent<AudioSource> ().Play ();
+
 		// interact if standing on farm plot
 		GameObject groundTile = GetGroundObject();
 
@@ -210,17 +233,33 @@ public class Grim : MonoBehaviour {
 			Plot farmPlot = groundTile.GetComponent<Plot> ();
 
 			// set off harvest checks and actions - get back rogue upgrade string
-			string formattedUpgradesText = farmPlot.HarvestRogue ();
+			GameObject harvestedRogue = farmPlot.HarvestRogue ();
 
-			// show rogue upgraded stats - closed with event trigger set in inspector
-			// use empty string as measurement of whether rogue successfully harvested
-			if (formattedUpgradesText != "") {
+			// bring rogue back to world and show rogue run upgrades
+			if (harvestedRogue != null) {
+				// pop rogue pickup back into world
+				harvestedRogue.GetComponent<Rigidbody> ().AddForce(Vector3.up * 30f);
+
+				// display upgraded stats to UI - closed by event trigger set in inspector
+				rogueUpgradeUI.SetActive (false);
+				rogueUpgradeUI.GetComponentInChildren<UnityEngine.UI.Text> ().text = harvestedRogue.GetComponent<Rogue> ().runUpgradeText;
 				rogueUpgradeUI.SetActive (true);
-				rogueUpgradeUI.GetComponentInChildren<UnityEngine.UI.Text> ().text = formattedUpgradesText;
+
+				// take rogue treasure and update coinage ui
+				treasure += harvestedRogue.GetComponent<Rogue> ().Plunder();
+				DisplayTreasure ();
 			}
 		}
 
 		// TODO: also take a swipe at enemy if one present
+	}
+
+	// update treasure text UI
+	void DisplayTreasure() {
+		string formattedText = "<size=45>x</size> <size=75>";
+		formattedText += treasure + "</size> ";
+		formattedText += "<size=42>coinage</size>";
+		treasureUI.GetComponentInChildren<UnityEngine.UI.Text> ().text = formattedText;
 	}
 
 	// pickup touched objects automatically
