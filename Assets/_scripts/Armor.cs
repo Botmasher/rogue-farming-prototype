@@ -72,7 +72,7 @@ public class Armor : MonoBehaviour {
 		"Stone",
 		"Silver",
 		"Gold",
-		"Silk",
+		"Dragon",
 		"Carbon"
 	};
 	void Rename() {
@@ -84,21 +84,22 @@ public class Armor : MonoBehaviour {
 		currentXp += addedXp;
 
 		// TODO: handle leveling up multiple times with large dose of XP
-
-		if (currentXp > levelXps [level]) {
+		if (level >= levelXps.Count) {
+			currentXp = levelXps[levelXps.Count - 1];
+		}
+		else if (currentXp > levelXps [level - 1]) {
 			LevelUp ();
 		}
 	}
 	public void LevelUp() {
+		// spend the XP cost to level up
+		currentXp -= levelXps[level];
+
 		// augment armor unless reached level cap
 		level = Mathf.Min(level + 1, levelXps.Count);
 
-		// XP management
-		//
-		// spend the XP cost to level up
-		currentXp -= levelXps[level];
 		// raise level XP cost to next level (read incl in inspector)
-		levelXp = levelXps[level];
+		levelXp = levelXps[level - 1];
 
 		// Data and visuals
 		//

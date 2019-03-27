@@ -39,7 +39,7 @@ public class Weapon : MonoBehaviour {
 		500,
 		1200,
 		3000,
-		6000,
+		6000
 	};
 
 	void Start() {
@@ -70,7 +70,7 @@ public class Weapon : MonoBehaviour {
 		"Stone",
 		"Silver",
 		"Gold",
-		"Diamond",
+		"Dragon",
 		"Carbon"
 	};
 	void Rename() {
@@ -83,16 +83,22 @@ public class Weapon : MonoBehaviour {
 
 		// TODO: handle leveling up multiple times with large dose of XP
 
-		if (currentXp > levelXps[level]) LevelUp ();
+		if (level >= levelXps.Count) {
+			currentXp = levelXps[levelXps.Count - 1];
+		}
+		else if (currentXp > levelXps [level - 1]) {
+			LevelUp ();
+		}
 	}
 	public void LevelUp() {
+		// spend the XP cost to level up
+		currentXp -= levelXps[level];
+
 		// augment weapon level unless reached level cap
 		level = Mathf.Min(level + 1, levelXps.Count);
 
-		// spend the XP cost to level up
-		currentXp -= levelXps[level];
 		// raise level XP cost to next level (read incl in inspector)
-		levelXp = levelXps[level];
+		levelXp = levelXps[level - 1];
 
 		// increase stats
 		damage = damageLevels[level - 1];
