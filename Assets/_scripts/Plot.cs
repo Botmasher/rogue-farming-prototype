@@ -238,6 +238,9 @@ public class Plot : MonoBehaviour {
 			// grab reactivated rogue item
 			GameObject rogueObject = UnsetRogue ();
 
+			// have rogue spend stat gains from run performance
+			rogueObject.GetComponent<Rogue> ().Upgrade();
+
 			// return harvested rogue
 			return rogueObject;
 		}
@@ -277,7 +280,15 @@ public class Plot : MonoBehaviour {
 				epitaphText += "<size=25>";
 
 				// text for a rogue after finished with a run
-				if (isHarvestable) {
+
+				// rogue actually defeated the entire castle
+				if (isHarvestable && rogue.isAlive) {
+					epitaphText += "was victorious\n";
+					epitaphText += "in the castle of\n";
+					epitaphText += "<i>" + castle.castleName + "</i>!";
+				}
+				// rogue died
+				else if (isHarvestable) {
 					epitaphText += "perished\n";
 					epitaphText += "<size=15>on <b>floor " + GrowthStage + "</b> ";
 					epitaphText += "at the hands of a</size>\n";

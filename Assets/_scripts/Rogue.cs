@@ -270,97 +270,101 @@ public class Rogue : MonoBehaviour {
 		runPoints["luck"] = 0;
 	}
 
+	public void Upgrade() {
+		// TODO: set stats based on successful actions this run
+		//  - castle keeps memory of augments gained this run
+		// 	- OR rogue keeps then empties them into skills
+
+		/*
+		 * 	Upgrade skills based on run stats
+		 */
+		int totalPoints = 1; 	// leave minimum one point to spend
+
+		int enemyPoints = Mathf.RoundToInt (runPoints["enemy"]);
+		int treasurePoints = Mathf.RoundToInt (runPoints ["treasure"]);
+		int hazardPoints = Mathf.RoundToInt (runPoints ["hazard"]);
+
+		totalPoints += enemyPoints > 0 ? 1 : 0;
+		totalPoints += hazardPoints > 0 ? 1 : 0;
+		totalPoints += treasurePoints > 0 ? 1 : 0;
+
+		// update amount in pockets that can be plundered
+		treasure += treasurePoints;
+
+		Debug.Log ("Perished rogue has " + totalPoints + " points to spend");
+
+		// TODO: decide where to spend points through UI
+		//
+		// here simulate arbitrarily picking skills
+		List<string> skillNames = new List<string> {"attack", "defense", "health", "thievery", "agility"};
+		List<string> selectedSkills = new List<string> ();
+		//
+		// spend each available point on a random skill until all spent
+		while (totalPoints > 0) {
+			string skillName = skillNames[Random.Range(0, skillNames.Count)];
+			selectedSkills.Add (skillName);
+			switch (skillName) {
+			case "attack":
+				Debug.Log ("Increasing attack...");
+				attack++;
+				break;
+			case "defense":
+				Debug.Log ("Increasing defense...");
+				defense++;
+				break;
+			case "health":
+				Debug.Log ("Increasing health...");
+				maxHealth++;
+				break;
+			case "thievery":
+				Debug.Log ("Increasing thievery...");
+				thievery++;
+				break;
+			case "agility":
+				Debug.Log ("Increasing agility...");
+				agility++;
+				break;
+			default:
+				break;
+			}
+			totalPoints--;
+		}
+
+		// luck goes up on its own
+		float luckPoints = runPoints ["luck"];
+		luck += (luckPoints * 0.003f);
+
+		// upgrade equipment based on run stats
+		int equipmentPoints = enemyPoints * 10;
+		Weapon weapon = weaponEquipment.GetComponent<Weapon> ();
+		Armor armor = armorEquipment.GetComponent<Armor> ();
+		weapon.AddXP (equipmentPoints);
+		armor.AddXP (equipmentPoints);
+
+		Debug.Log (string.Format ("Increased armor by {0}, weapon by {0}", equipmentPoints, equipmentPoints));
+
+		// format text for ui - displayed when set active by Plot on rogue harvest
+		string formattedStats = "<size=86><color=yellow><i>Rogue upgraded</i></color></size>\n";
+		formattedStats += "<size=62>";
+		foreach (string selectedSkill in selectedSkills) {
+			formattedStats += "+1 to <b>" + selectedSkill + "</b>\n";
+		}
+		formattedStats += "<b>Weapon</b> gained <b>" + equipmentPoints + "</b>xp\n";
+		formattedStats += "<b>Armor</b> gained <b>" + equipmentPoints + "</b>xp\n";
+		formattedStats += "</size>";
+		runUpgradeText = formattedStats;
+	}
+
 	// flag as dead, upgrade stats, add epitaph ui info
 	public void Die(string killerName, string killerType) {
 		// tally points before death
 		if (isAlive) {
-
 			// set dead
 			isAlive = false;
 
-			// TODO: set stats based on successful actions this run
-			//  - castle keeps memory of augments gained this run
-			// 	- OR rogue keeps then empties them into skills
-
-			/*
-			 * 	Upgrade skills based on run stats
-			 */
-			int totalPoints = 1; 	// leave minimum one point to spend
-
-			int enemyPoints = Mathf.RoundToInt (runPoints["enemy"]);
-			int treasurePoints = Mathf.RoundToInt (runPoints ["treasure"]);
-			int hazardPoints = Mathf.RoundToInt (runPoints ["hazard"]);
-
-			totalPoints += enemyPoints > 0 ? 1 : 0;
-			totalPoints += hazardPoints > 0 ? 1 : 0;
-			totalPoints += treasurePoints > 0 ? 1 : 0;
-
-			// update amount in pockets that can be plundered
-			treasure += treasurePoints;
-
-			Debug.Log ("Perished rogue has " + totalPoints + " points to spend");
-
-			// TODO: decide where to spend points through UI
-			//
-			// here simulate arbitrarily picking skills
-			List<string> skillNames = new List<string> {"attack", "defense", "health", "thievery", "agility"};
-			List<string> selectedSkills = new List<string> ();
-			//
-			// spend each available point on a random skill until all spent
-			while (totalPoints > 0) {
-				string skillName = skillNames[Random.Range(0, skillNames.Count)];
-				selectedSkills.Add (skillName);
-				switch (skillName) {
-					case "attack":
-						Debug.Log ("Increasing attack...");
-						attack++;
-						break;
-					case "defense":
-						Debug.Log ("Increasing defense...");
-						defense++;
-						break;
-					case "health":
-						Debug.Log ("Increasing health...");
-						maxHealth++;
-						break;
-					case "thievery":
-						Debug.Log ("Increasing thievery...");
-						thievery++;
-						break;
-					case "agility":
-						Debug.Log ("Increasing agility...");
-						agility++;
-						break;
-					default:
-						break;
-				}
-				totalPoints--;
-			}
-
-			// luck goes up on its own
-			float luckPoints = runPoints ["luck"];
-			luck += luckPoints * 0.01f;
-
-			// upgrade equipment based on run stats
-			int equipmentPoints = enemyPoints * 10;
-			Weapon weapon = weaponEquipment.GetComponent<Weapon> ();
-			Armor armor = armorEquipment.GetComponent<Armor> ();
-			weapon.AddXP (equipmentPoints);
-			armor.AddXP (equipmentPoints);
-
-			Debug.Log (string.Format ("Increased armor by {0}, weapon by {0}", equipmentPoints, equipmentPoints));
-
-
-			// format text for ui - displayed when set active by Plot on rogue harvest
-			string formattedStats = "<size=86><color=yellow><i>Rogue upgraded</i></color></size>\n";
-			formattedStats += "<size=62>";
-			foreach (string selectedSkill in selectedSkills) {
-				formattedStats += "+1 to <b>" + selectedSkill + "</b>\n";
-			}
-			formattedStats += "<b>Weapon</b> gained <b>" + equipmentPoints + "</b>xp\n";
-			formattedStats += "<b>Armor</b> gained <b>" + equipmentPoints + "</b>xp\n";
-			formattedStats += "</size>";
-			runUpgradeText = formattedStats;
+			// upgrade rogue stats based on run events
+			// NOTE: now handled in Plot harvest to run once whether perishing or succeeding
+			//Upgrade ();
 
 			// remember what defeated rogue for epitaph text
 			deathDealerName = killerName;

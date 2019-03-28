@@ -98,8 +98,14 @@ public class DayManager : MonoBehaviour {
 		// run hourly callbacks
 		Announce (hour);
 
+		string timeText;
 		// update the daytimer UI
-		dayUI.GetComponentInChildren<UnityEngine.UI.Text> ().text = "Day " + (days + 1) + "  hour " + (hour + 1);
+		if (hour == hoursPerDay * 0.5f) {
+			timeText = "<i>noon,</i> Day " + (days + 1);
+		} else {
+			timeText = "Day " + (days + 1);
+		}
+		dayUI.GetComponentInChildren<UnityEngine.UI.Text> ().text = timeText;
 	}
 
 	// event notification
