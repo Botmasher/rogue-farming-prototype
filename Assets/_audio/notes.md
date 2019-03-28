@@ -10,10 +10,17 @@
 	- [X] unattach equipment
 - Plot
 	- [ ] hover over
-	- [ ] plant
-	- [ ] grow
-	- [ ] harvest
-	- [ ] level up (Rogue)
+	- [X] plant
+	- [X] grow
+	- [X] harvest
+	- [X] level up (Rogue)
 
 ## Requested Music
 - [X] rough demo bells theme
+
+## Credits
+- (music by the creator)
+- Woosh, Mark DiAngelo
+- Blop, Mark DiAngelo
+- Wind Storm, Mark DiAngelo
+- all other effects: soundeffect-lab.info

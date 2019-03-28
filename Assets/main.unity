@@ -709,7 +709,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: a80a329b13f844f1497e341bad99eab9, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.09
+  m_Volume: 0.18
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -8603,6 +8603,11 @@ Prefab:
     - target: {fileID: 1121733055238358, guid: d1b0912fe617e42eab9b1946dc208521, type: 2}
       propertyPath: m_Name
       value: tree-scary-1 (16)
+      objectReference: {fileID: 0}
+    - target: {fileID: 65928149519011174, guid: d1b0912fe617e42eab9b1946dc208521,
+        type: 2}
+      propertyPath: m_Size.x
+      value: 1.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d1b0912fe617e42eab9b1946dc208521, type: 2}

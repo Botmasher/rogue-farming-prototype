@@ -98,7 +98,8 @@ public class Weapon : MonoBehaviour {
 		level = Mathf.Min(level + 1, levelXps.Count);
 
 		// raise level XP cost to next level (read incl in inspector)
-		levelXp = levelXps[level - 1];
+		levelXp = levelXps[level];
+		// NOTE: level is one ahead of list indexes
 
 		// increase stats
 		damage = damageLevels[level - 1];
